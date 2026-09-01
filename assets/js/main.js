@@ -115,7 +115,7 @@
   var filtro  = $("#filtro");
   var ancora  = $("#ancora");
   var categoriaViva = "tutto";
-  var A_BLOCCHI = 12;          // quante schede per volta, poi «Vedi altri modelli»
+  var A_BLOCCHI = 16;          // quante schede per volta, poi «Vedi altri modelli»
   var mostrate = A_BLOCCHI;
 
   function disegnaCatalogo() {
