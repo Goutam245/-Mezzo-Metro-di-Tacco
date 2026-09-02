@@ -6,6 +6,10 @@
 (function () {
   "use strict";
 
+  // Si dichiara subito che il JS gira: il CSS nasconde i blocchi .rivela solo
+  // con questa classe. Se qualcosa esplode piu' avanti, il sito resta leggibile.
+  document.documentElement.classList.add("con-js");
+
   var $  = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
   var fermo = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -46,7 +50,10 @@
     var h = [];
     h.push('<article class="scheda' + (abito ? " scheda--abito" : "") +
            '" data-categoria="' + attr(p.categoria) + '" data-nome="' + attr(p.nome) + '">');
-    h.push('<div class="scheda__foto">');
+    // Le foto «ambientate» (su modella, o scattate in negozio) riempiono il
+    // riquadro invece di stare dentro con l'aria intorno: cosi' il loro fondo
+    // colorato non stampa un rettangolo dentro la scheda bianca.
+    h.push('<div class="scheda__foto' + (p.pieno ? " scheda__foto--pieno" : "") + '">');
     h.push('<img src="' + attr(p.img) + '" alt="' + attr(p.alt || p.nome) +
            '" loading="lazy" decoding="async" width="' + (abito ? 780 : 860) +
            '" height="' + (abito ? 1040 : 860) + '">');
@@ -65,17 +72,13 @@
                esc(v.colore) + "</span></button>");
       });
       h.push("</div>");
-    } else if (p.varianti && p.varianti.length === 1) {
-      h.push('<p class="colori__altri">Colore: ' + esc(p.varianti[0].colore) + "</p>");
-    }
-    if (p.altriColori && p.altriColori.length) {
-      h.push('<p class="colori__altri">Su richiesta anche ' +
-             esc(p.altriColori.join(", ").toLowerCase()) + ".</p>");
     }
 
     h.push('<div class="misure">');
     if (p.misure && p.misure.length) {
       h.push('<span class="misure__etichetta" id="' + attr(idMis) + '">Scegli la misura</span>');
+      // stato vuoto del selettore, come da copy-microtesti §3
+      h.push('<span class="solo-lettori">Numero</span>');
       h.push('<div class="misure__riga" role="group" aria-labelledby="' + attr(idMis) + '">');
       p.misure.forEach(function (m) {
         h.push('<button type="button" class="misura" aria-pressed="false">' + esc(m) + "</button>");
@@ -83,6 +86,11 @@
       h.push("</div>");
     } else {
       h.push('<p class="misure__nota">Chiedi la tua misura in chat</p>');
+    }
+    // copy-microtesti §3, ultima riga: lo stato «non piu disponibile»
+    if (p.esaurito) {
+      h.push('<p class="scheda__esaurito">Questo modello è finito. ' +
+             'Scrivici: guardiamo se torna.</p>');
     }
     h.push("</div>");
 
@@ -296,72 +304,33 @@
   agganciaSchede(griglia);
   agganciaSchede(grigliaAbiti);
 
-  /* ── aiuto misura: prepara il messaggio ──────────────────────────────── */
-  var aiuto = $("#aiuto-misura");
-  if (aiuto) {
-    var stato = { numero: "", calzata: "", modello: "" };
-    var scelto = $("#aiuto-modello");
-    var anteprima = $("#aiuto-anteprima");
-    var invio = $("#aiuto-invio");
-
-    function testoAiuto() {
-      var m = (dati.messaggi || {}).misura ||
-        "Ciao! Vorrei informazioni su «{NOME MODELLO}». Di solito porto il {NUMERO} e mi sta {CALZATA}. Che misura ordino?";
-      if (!stato.numero) return "Ciao! Vi scrivo dal sito. Non so che numero prendere: mi aiutate?";
-      var calzata = stato.calzata || "giusta";
-      if (!stato.modello) {
-        // senza modello scelto il testo del pannello non regge: le virgolette
-        // resterebbero vuote. Si scrive la stessa cosa in una frase intera.
-        return "Ciao! Vi scrivo dal sito. Di solito porto il " + stato.numero +
-               " e mi sta " + calzata + ": che misura mi conviene ordinare?";
-      }
-      return m.replace("{NOME MODELLO}", stato.modello)
-              .replace("{NUMERO}", stato.numero)
-              .replace("{CALZATA}", calzata);
-    }
-    function aggiorna() {
-      anteprima.textContent = testoAiuto();
-      invio.href = testoWa(testoAiuto());
-    }
-    aiuto.addEventListener("click", function (e) {
-      var b = e.target.closest("button[data-campo]");
-      if (!b) return;
-      var gruppo = b.closest("[data-gruppo]");
-      $$("button[data-campo]", gruppo).forEach(function (x) { x.setAttribute("aria-pressed", "false"); });
-      b.setAttribute("aria-pressed", "true");
-      stato[b.dataset.campo] = b.dataset.valore;
-      aggiorna();
-    });
-    if (scelto) {
-      scelto.addEventListener("change", function () { stato.modello = scelto.value; aggiorna(); });
-    }
-    aggiorna();
-  }
-
-  function riempiModelli() {
-    var sel = $("#aiuto-modello");
-    if (!sel) return;
-    var opz = ['<option value="">Non ho ancora scelto</option>'];
-    prodottiAttivi().forEach(function (p) {
-      if (!p.misure || !p.misure.length) return;
-      opz.push('<option value="' + attr(p.nome) + '">' + esc(p.nome) + "</option>");
-    });
-    sel.innerHTML = opz.join("");
-  }
-
   /* ── «le scarpe»: il nastro che scorre e non si ferma mai ────────────── */
   function riempiVetrina() {
     var v = $("#vetrina");
     if (!v) return;
+    // Gli scatti di studio (AA, AB, AC, BE, BF, BV) sono su bianco pieno e
+    // reggono l'ingrandimento; la serie NPM e' piu' morbida e va in coda.
+    // Senza questo ordinamento il nastro mostrava dieci NPM di fila.
     var scelti = prodottiAttivi().filter(function (p) {
-      return p.categoria !== "abiti" && /^(NPM|AA|AB|AC|BE|BF|BV|CC|CE|BB|BC)/.test(p.id);
-    }).slice(0, 10);
+      return p.categoria !== "abiti" && !p.pieno &&
+             /^(NPM|AA|AB|AC|BE|BF|BV|CC|CE|BB|BC)/.test(p.id);
+    });
+    scelti = scelti.filter(function (p) { return !/^NPM/.test(p.id); })
+             .concat(scelti.filter(function (p) { return /^NPM/.test(p.id); }))
+             .slice(0, 12);
     if (!scelti.length) { v.innerHTML = ""; return; }
+    // Ogni voce e un collegamento vero a WhatsApp, col messaggio precompilato
+    // della scheda prodotto senza taglia (copy-microtesti §2). La seconda
+    // copia del nastro serve solo al giro continuo: e nascosta ai lettori di
+    // schermo e fuori dal percorso di tabulazione.
     function voce(p, doppia) {
       return '<li class="nastro__voce"' + (doppia ? ' aria-hidden="true"' : "") +
-             '><img src="' + attr(p.img) + '" alt="' + (doppia ? "" : attr(p.alt)) +
+             '><a href="' + attr(messaggioProdotto(p.nome, "")) + '"' +
+             (doppia ? ' tabindex="-1"' : "") +
+             ' target="_blank" rel="noopener">' +
+             '<img src="' + attr(p.img) + '" alt="' + (doppia ? "" : attr(p.alt)) +
              '" loading="lazy" decoding="async" width="860" height="860"><span>' +
-             esc(p.nome) + "</span></li>";
+             esc(p.nome) + "</span></a></li>";
     }
     // la seconda copia serve al giro continuo: l'animazione scorre di metà pista
     v.innerHTML = scelti.map(function (p) { return voce(p, false); }).join("") +
@@ -394,74 +363,7 @@
     });
   }
 
-  /* ── la parallasse della vetrina ──────────────────────────────────────────
-     Ogni pezzo della scena ha la sua profondità in --p: quelli davanti si
-     spostano di più, quelli in fondo quasi niente. Si scrive solo --tx/--ty,
-     che il CSS compone con la rotazione di base: nessun transform sovrascritto.
-     Un solo rAF in coda, e si ferma quando l'apertura esce di vista. */
-  function agganciaParallasse() {
-    var eroe = $(".eroe");
-    var pezzi = $$(".eroe__pezzo");
-    if (!eroe || !pezzi.length || fermo) return;
 
-    var mx = 0, my = 0, sy = 0, inCoda = false, inVista = true;
-    var puntatore = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-
-    function disegna() {
-      inCoda = false;
-      for (var i = 0; i < pezzi.length; i++) {
-        var n = pezzi[i];
-        var p = parseFloat(getComputedStyle(n).getPropertyValue("--p")) || 0.5;
-        var x = mx * 30 * p;
-        var y = my * 22 * p + sy * 26 * p;
-        n.style.setProperty("--tx", x.toFixed(2) + "px");
-        n.style.setProperty("--ty", y.toFixed(2) + "px");
-      }
-    }
-    function chiedi() { if (!inCoda && inVista) { inCoda = true; requestAnimationFrame(disegna); } }
-
-    if (puntatore) {
-      eroe.addEventListener("pointermove", function (e) {
-        var r = eroe.getBoundingClientRect();
-        mx = (e.clientX - r.left) / r.width - 0.5;
-        my = (e.clientY - r.top) / r.height - 0.5;
-        chiedi();
-      }, { passive: true });
-      eroe.addEventListener("pointerleave", function () { mx = my = 0; chiedi(); }, { passive: true });
-    }
-
-    window.addEventListener("scroll", function () {
-      var r = eroe.getBoundingClientRect();
-      inVista = r.bottom > 0 && r.top < window.innerHeight;
-      if (!inVista) return;
-      sy = Math.max(-1, Math.min(1, -r.top / Math.max(1, r.height)));
-      chiedi();
-    }, { passive: true });
-
-    disegna();
-  }
-
-  /* ── i cinquanta centimetri che salgono ──────────────────────────────── */
-  function agganciaCifra() {
-    var n = $("#cifra-cinquanta");
-    if (!n) return;
-    var arrivo = parseInt(n.textContent, 10) || 50;
-    if (fermo || !("IntersectionObserver" in window)) { n.textContent = arrivo; return; }
-    var os = new IntersectionObserver(function (voci) {
-      voci.forEach(function (v) {
-        if (!v.isIntersecting) return;
-        os.disconnect();
-        var inizio = null;
-        (function passo(t) {
-          if (inizio === null) inizio = t;
-          var q = Math.min(1, (t - inizio) / 1100);
-          n.textContent = Math.round(arrivo * (1 - Math.pow(1 - q, 3)));
-          if (q < 1) requestAnimationFrame(passo);
-        })(performance.now());
-      });
-    }, { threshold: 0.5 });
-    os.observe(n);
-  }
 
   /* ── le pedane della vetrina ──────────────────────────────────────────────
      Quattro modelli fermi al loro posto. A turno, uno per volta, la pedana
@@ -469,92 +371,6 @@
      frattempo abbiamo messo il modello successivo. Finito il giro la faccia
      nuova diventa quella davanti e la pedana torna dritta, senza che si veda.
      Si ferma quando l'apertura non è in vista o la scheda è in secondo piano. */
-  function avviaVetrina() {
-    var scaffale = $(".eroe__scaffale");
-    if (!scaffale || fermo) return;
-    var posti = $$("li", scaffale);
-    if (!posti.length) return;
-
-    var magazzino = prodottiAttivi().filter(function (p) {
-      return p.categoria !== "abiti" && p.img;
-    });
-    if (magazzino.length <= posti.length) return;
-
-    var GIRO = 1000;        // deve combaciare con la transizione in CSS
-    var PAUSA = 2400;       // quanto sta ferma una pedana prima della prossima
-    var posto = 0, pesca = 0, battito = null, inVista = true, giroInCorso = false;
-
-    function inVetrina() {
-      return posti.map(function (li) {
-        var im = li.querySelector(".scaffale__faccia--davanti img");
-        return im ? im.getAttribute("src") : "";
-      });
-    }
-    function prossimoModello() {
-      var esposti = inVetrina();
-      for (var t = 0; t < magazzino.length; t++) {
-        var p = magazzino[(pesca + t) % magazzino.length];
-        if (esposti.indexOf(p.img) === -1) {
-          pesca = (pesca + t + 1) % magazzino.length;
-          return p;
-        }
-      }
-      return null;
-    }
-
-    function gira() {
-      if (giroInCorso) return;
-      var li = posti[posto % posti.length];
-      posto++;
-      var p = prossimoModello();
-      if (!li || !p) return;
-
-      var telaio = li.querySelector(".scaffale__telaio");
-      var davanti = li.querySelector(".scaffale__faccia--davanti img");
-      var dietro = li.querySelector(".scaffale__faccia--dietro img");
-      if (!telaio || !davanti || !dietro) return;
-
-      // si gira solo quando la foto nuova è pronta: mai una pedana vuota
-      var pronta = new Image();
-      pronta.onload = function () {
-        giroInCorso = true;
-        dietro.src = p.img;
-        dietro.alt = "";
-        li.classList.add("gira");
-        setTimeout(function () {
-          // a giro finito la faccia nuova passa davanti e il telaio torna
-          // dritto senza transizione: l'occhio non se ne accorge
-          davanti.src = p.img;
-          davanti.alt = p.alt || p.nome;
-          telaio.style.transition = "none";
-          li.classList.remove("gira");
-          void telaio.offsetWidth;
-          telaio.style.transition = "";
-          giroInCorso = false;
-        }, GIRO + 40);
-      };
-      pronta.onerror = function () { posto--; };
-      pronta.src = p.img;
-    }
-
-    function accendi() { if (!battito && inVista) battito = setInterval(gira, GIRO + PAUSA); }
-    function spegni() { if (battito) { clearInterval(battito); battito = null; } }
-
-    // Si parte subito. L'osservatore serve solo a METTERE IN PAUSA quando
-    // l'apertura esce di vista: se lo aspettassimo per partire, in una scheda
-    // in secondo piano o in un'anteprima le pedane non girerebbero mai.
-    accendi();
-
-    document.addEventListener("visibilitychange", function () {
-      if (document.hidden) spegni(); else accendi();
-    });
-    if ("IntersectionObserver" in window) {
-      new IntersectionObserver(function (voci) {
-        inVista = voci[0].isIntersecting;
-        if (inVista && !document.hidden) accendi(); else spegni();
-      }, { threshold: 0.12 }).observe(scaffale);
-    }
-  }
 
   /* ── testi che vivono nel pannello ───────────────────────────────────── */
   function applicaContenuti() {
@@ -695,6 +511,21 @@
     document.addEventListener("visibilitychange", function () {
       if (!document.hidden) setTimeout(recupera, 60);
     });
+
+    // Secondo paracadute: in certi contesti (anteprime, schede in secondo
+    // piano, pagine precaricate) l'IntersectionObserver non parte MAI. Senza
+    // questo, la pagina resterebbe bianca. Costa un rAF per scorrimento e si
+    // stacca da solo appena tutti i blocchi sono comparsi.
+    function alloScorrimento() {
+      recupera();
+      for (var i = 0; i < da.length; i++) {
+        if (!da[i].classList.contains("dentro")) return;
+      }
+      window.removeEventListener("scroll", alloScorrimento);
+      window.removeEventListener("resize", alloScorrimento);
+    }
+    window.addEventListener("scroll", alloScorrimento, { passive: true });
+    window.addEventListener("resize", alloScorrimento, { passive: true });
   }
 
   /* ── menu da telefono ────────────────────────────────────────────────── */
@@ -782,30 +613,142 @@
         if (!d || !d.prodotti || d.versione === dati.versione) return;
         dati = d;
         applicaContenuti();
+        spezzaTitolo();
         disegnaCatalogo();
         disegnaAbiti();
         riempiVetrina();
         cascata(griglia);
         cascata(grigliaAbiti);
-        riempiModelli();
-        misuraSezioni();
+              misuraSezioni();
         suScroll();
       })
       .catch(function () { /* il sito funziona anche da solo */ });
   }
 
+
+  /* ── il titolo su due righe ──────────────────────────────────────────
+     Riga 1 romana, riga 2 corsiva: e' il gesto che rende «vero» il sito di
+     riferimento. Il testo NON si riscrive — si spezza sulla virgola la
+     stessa identica stringa che arriva dal pannello, cosi' il cancello dei
+     testi continua a passare. */
+  function spezzaTitolo() {
+    var h = $(".eroe h1");
+    if (!h) return;
+    var testo = (h.textContent || "").trim();
+    var taglio = testo.indexOf(", ");
+    if (taglio === -1) return;
+    // lo spazio resta attaccato alla prima riga: il cancello dei testi legge
+    // «Scacchi, dal» e non «Scacchi,dal»
+    h.textContent = testo.slice(0, taglio + 2);
+    var coda = document.createElement("span");
+    coda.className = "corsivo";
+    coda.textContent = testo.slice(taglio + 2);
+    h.appendChild(coda);
+  }
+
+
+  /* ── parallasse dell apertura ────────────────────────────────────────
+     Il JS scrive SOLO due variabili, --tx e --ty. La trasformazione di base
+     resta nel CSS e non viene mai sovrascritta: e la lezione della versione
+     precedente, dove scrivere node.style.transform cancellava rotazioni e
+     centrature ogni volta che il dito si muoveva.
+
+     Ogni strato porta la sua profondita in --p: 1 = in primo piano, valori
+     bassi = sullo sfondo. Da qui vengono sia la parallasse col puntatore
+     (solo desktop con mouse vero) sia lo scorrimento cinematografico, che
+     fa uscire gli strati a velocita diverse. */
+  function agganciaParallasse() {
+    var eroe = document.querySelector(".eroe");
+    if (!eroe || fermo) return;
+    var strati = Array.prototype.slice.call(
+      eroe.querySelectorAll(".eroe__pezzo, .eroe__neon"));
+    if (!strati.length) return;
+
+    var mx = 0, my = 0, sy = 0, inCoda = false, inVista = true;
+    var conMouse = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    function disegna() {
+      inCoda = false;
+      for (var i = 0; i < strati.length; i++) {
+        var n = strati[i];
+        var p = parseFloat(getComputedStyle(n).getPropertyValue("--p")) || 0.5;
+        var x = mx * 26 * p;
+        var y = my * 18 * p + sy * 44 * p;
+        n.style.setProperty("--tx", x.toFixed(2) + "px");
+        n.style.setProperty("--ty", y.toFixed(2) + "px");
+      }
+    }
+    function chiedi() {
+      if (!inCoda && inVista) { inCoda = true; requestAnimationFrame(disegna); }
+    }
+
+    if (conMouse) {
+      eroe.addEventListener("pointermove", function (e) {
+        var r = eroe.getBoundingClientRect();
+        mx = (e.clientX - r.left) / r.width - 0.5;
+        my = (e.clientY - r.top) / r.height - 0.5;
+        chiedi();
+      }, { passive: true });
+      eroe.addEventListener("pointerleave", function () {
+        mx = my = 0; chiedi();
+      }, { passive: true });
+    }
+
+    // scorrimento: gli strati escono a velocita diverse, e il piano di
+    // sfondo resta indietro rispetto ai prodotti
+    window.addEventListener("scroll", function () {
+      var r = eroe.getBoundingClientRect();
+      inVista = r.bottom > 0 && r.top < window.innerHeight;
+      if (!inVista) return;
+      sy = Math.max(0, Math.min(1, -r.top / Math.max(1, r.height)));
+      chiedi();
+    }, { passive: true });
+  }
+
+  /* ── rete di sicurezza dell apertura ─────────────────────────────────
+     Le animazioni di entrata usano fill-mode «backwards»: finche non
+     partono, l elemento resta allo stato iniziale, cioe invisibile. In una
+     scheda in secondo piano, in un anteprima, o con il compositore
+     rallentato, possono non partire affatto — e l apertura resterebbe
+     vuota. Dopo 2,6s le si porta comunque alla fine. Le animazioni infinite
+     (aloni, pulviscolo, respiro) si lasciano stare: finish() su una
+     animazione infinita solleva un errore. */
+  function garantisciApertura() {
+    var eroe = $(".eroe");
+    if (!eroe || !eroe.getAnimations) return;
+    // subtree:true prende anche gli pseudo-elementi: senza, il tratto sotto
+    // la riga in corsivo (::after) resterebbe a scaleX(0), cioe invisibile.
+    var viste;
+    try { viste = eroe.getAnimations({ subtree: true }); }
+    catch (e) { viste = eroe.getAnimations(); }
+    // Gli pseudo-elementi non si raggiungono in modo affidabile da qui: per
+    // quelli si usa una classe, e il CSS annulla l animazione lasciando lo
+    // stato finale gia dichiarato.
+    eroe.classList.add("eroe--pronta");
+    viste.forEach(function (a) {
+      try {
+        var t = a.effect && a.effect.getTiming();
+        if (!t || t.iterations === Infinity) return;
+        if (a.playState !== "finished") a.finish();
+      } catch (e) { /* un animazione in meno non deve fermare il resto */ }
+    });
+  }
+  setTimeout(garantisciApertura, 2900);
+  window.addEventListener("load", function () { setTimeout(garantisciApertura, 400); });
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) setTimeout(garantisciApertura, 300);
+  });
+
   /* ── avvio ───────────────────────────────────────────────────────────── */
   applicaContenuti();
+  spezzaTitolo();
   disegnaCatalogo();
   disegnaAbiti();
   riempiVetrina();
   cascata(griglia);
   cascata(grigliaAbiti);
-  agganciaParallasse();
-  agganciaCifra();
-  avviaVetrina();
-  riempiModelli();
   costruisciRighello();
+  agganciaParallasse();
   attivaRivela();
   suScroll();
   setTimeout(misuraSezioni, 350);

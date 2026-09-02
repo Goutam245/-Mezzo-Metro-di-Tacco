@@ -1,878 +1,1167 @@
+@charset "utf-8";
 /* =========================================================================
-   Mezzo Metro di Tacco — foglio di stile
+   MEZZO METRO DI TACCO — foglio di stile
+   Rifatto il 02/09/2026 secondo _lavorazione/rebuild/SPECIFICA.md
 
-   COLORI — campionati pixel per pixel dal logo e dal volantino:
-     rosa    #E30B5E · #F72B70    giallo #FDC805
-     ciano   #7FE7F7 (il neon del logo)
-     crema   #F5E8DA              nero   #14110F
-   IMPIANTO — l'apertura è una vetrina di notte: il logo è disegnato per
-   accendersi sul nero, ed è lì che va messo. Da lì in giù il sito torna
-   chiaro, perché le scarpe si guardano sul bianco.
-   Costruito prima per il telefono.
+   La regola: TUTTO SI MUOVE, NIENTE GALLEGGIA.
+   Ogni cosa che si anima e' un prodotto vero, una parola vera o una foto
+   vera, e sta dentro un telaio che la ritaglia. Il cliente aveva cerchiato
+   col pennarello le scarpe che galleggiavano sul nero: la risposta non e'
+   meno movimento, e' movimento dentro una struttura.
+
+   Indice
+     1  caratteri            8  catalogo
+     2  gettoni              9  nastro dei prodotti
+     3  base                10  bande di contenuto
+     4  impianto di banda   11  domande, mappa, richiamo, pie'
+     5  componenti          12  barre fisse
+     6  testata e menu      13  movimento
+     7  apertura            14  meno movimento / stampa
    ========================================================================= */
 
+/* ── 1 · caratteri ─────────────────────────────────────────────────────
+   Tre file variabili, sottoinsieme latino, ospitati qui: 104 KB in tutto.
+   Non su Google Fonts: il sito ha una pagina privacy e in UE incorporare
+   Google Fonts e' un problema reale. */
+@font-face{
+  font-family:"Bodoni Moda";font-style:normal;font-weight:500 800;
+  font-display:swap;src:url(../font/bodoni-roman.woff2) format("woff2");
+}
+@font-face{
+  font-family:"Bodoni Moda";font-style:italic;font-weight:500 800;
+  font-display:swap;src:url(../font/bodoni-italic.woff2) format("woff2");
+}
+@font-face{
+  font-family:"Inter";font-style:normal;font-weight:400 700;
+  font-display:swap;src:url(../font/inter-400-700.woff2) format("woff2");
+}
+
+/* ── 2 · gettoni ─────────────────────────────────────────────────────── */
 :root{
-  --rosa:#E30B5E;
-  --rosa-vivo:#F72B70;
-  --rosa-scuro:#A80645;
-  --rosa-velo:#FDF2F6;
-  --rosa-tenue:#FBE3EC;
-  --giallo:#FDC805;
-  --ciano:#7FE7F7;
-  --crema:#F5E8DA;
-  --panna:#FBF7F1;
+  /* superfici — due neutri e un accento, punto */
   --bianco:#FFFFFF;
-  --nero:#14110F;
-  --notte:#0A0809;
-  --notte-2:#1B0C15;
-  --grigio:#5A524B;
-  --grigio-chiaro:#8B8179;
-  --bordo:#ECE3D7;
-  --bordo-forte:#DCCFBE;
+  --nube:#FAF7F5;
+  --velo:#FCF2F5;
+  --scuro:#2A1F23;        /* UNA banda sola in tutto il sito */
+  --inchiostro:#1A1416;   /* nero caldo, mai #000 */
 
-  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-          "Helvetica Neue", Arial, sans-serif;
-  --font-titolo: "Playfair Display", Georgia, "Times New Roman", Times, serif;
+  /* accento — uno solo */
+  --rosa:#E30B5E;
+  --rosa-scuro:#A80645;
+  --rosa-linea:#F3D9E2;
 
-  --t-micro:.72rem;
-  --t-piccolo:.875rem;
-  --t-guida:clamp(1.05rem, .98rem + .35vw, 1.25rem);
-  --t-h3:clamp(1.05rem, .98rem + .35vw, 1.2rem);
-  --t-h2:clamp(1.85rem, 1.25rem + 2.6vw, 3.25rem);
+  /* testo e linee */
+  --grigio:#6A5F63;
+  --grigio-velo:#8A7F83;  /* 3,77:1 — SOLO decorativo, mai testo essenziale */
+  --linea:#EDE6E4;        /* il filo da 1px: e' la struttura portante */
+  --linea-forte:#DDD3D0;
 
-  --gutter:clamp(1.15rem, .6rem + 2.2vw, 2.75rem);
-  --sezione:clamp(4rem, 2rem + 7.5vw, 8rem);
-  --max:78rem;
+  /* caratteri */
+  --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-titolo:"Bodoni Moda","Didot",Georgia,"Times New Roman",serif;
 
-  --raggio:8px;
-  --raggio-g:18px;
-  --ombra:0 1px 2px rgba(20,17,15,.04), 0 12px 30px -20px rgba(20,17,15,.25);
-  --ombra-alta:0 2px 6px rgba(20,17,15,.05), 0 34px 64px -30px rgba(20,17,15,.34);
-  --molla:cubic-bezier(.22,.61,.36,1);
+  /* scala — rapporto 1.250, base 17px. Il Bodoni si sfalda sotto i 20px:
+     sotto 1.56rem esiste solo la sans. */
+  --t-h1:clamp(2.05rem,1.35rem + 2.4vw,3.05rem);
+  --t-h2:clamp(1.75rem,1.35rem + 1.7vw,2.6rem);
+  --t-h3:clamp(1.25rem,1.15rem + .45vw,1.56rem);
+  --t-guida:clamp(1.125rem,1.05rem + .35vw,1.25rem);
+  --t-corpo:1.0625rem;
+  --t-scheda:1rem;
+  --t-piccolo:.8125rem;
+  --t-micro:.6875rem;
+
+  /* ritmo — unita' 4px, ogni valore un multiplo */
+  --s1:4px;  --s2:8px;  --s3:12px; --s4:16px; --s5:24px;
+  --s6:32px; --s7:48px; --s8:64px; --s9:96px; --s10:128px;
+
+  --banda:clamp(3.4rem,2.4rem + 3.2vw,6.2rem);
+  --gutter:clamp(1.25rem,.8rem + 2vw,3rem);
+  --intestazione-corpo:clamp(1.7rem,1.2rem + 1.8vw,2.9rem);
+  --gap-griglia:clamp(.7rem,.5rem + .8vw,1.2rem);
+
+  --max:76rem;
+  --max-largo:84rem;
+  --max-testo:36rem;
+  --max-titolo:44rem;
+
+  /* forma */
+  --r-xs:8px; --r-s:12px; --r-m:16px; --r-l:24px; --r-pill:999px;
+  --filo:1px solid var(--linea);
+  --ombra:0 1px 2px rgba(26,20,22,.03), 0 12px 28px -20px rgba(26,20,22,.20);
+  --ombra-alta:0 2px 6px rgba(26,20,22,.04), 0 30px 60px -32px rgba(26,20,22,.28);
+
+  /* movimento — lento vuol dire costoso */
+  --e-entrata:cubic-bezier(.22,.61,.36,1);
+  --e-morbida:cubic-bezier(.65,0,.35,1);
+  --d-breve:200ms; --d-media:600ms; --d-lunga:900ms;
+
+  --altezza-testata:76px;
 }
 
+/* ── 3 · base ─────────────────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:5.5rem}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-
-body{
-  margin:0;background:var(--bianco);color:var(--nero);
-  font-family:var(--font);font-size:1rem;line-height:1.65;
-  overflow-x:hidden;-webkit-font-smoothing:antialiased;
-}
-
-img{max-width:100%;height:auto;display:block}
+/* Regola difensiva, non cosmetica: .scheda e .cookie-bar dichiarano
+   display:flex e vincono su [hidden]{display:none} del browser (stessa
+   specificita', ma il foglio d'autore batte quello dell'agente). Senza
+   questa riga il filtro del catalogo e il «Vedi altri modelli» non
+   nascondono niente, e la striscia dei cookie resta sempre a vista. */
 [hidden]{display:none !important}
-a{color:inherit}
-button{font:inherit;color:inherit}
-p{margin:0 0 1em}
-p:last-child{margin-bottom:0}
-ul{margin:0;padding:0;list-style:none}
-
-h1,h2{margin:0;font-family:var(--font-titolo);font-weight:700;
-  line-height:1.06;letter-spacing:-.02em;color:var(--nero)}
-h2{font-size:var(--t-h2)}
-h3,h4{margin:0;font-family:var(--font);font-weight:700;line-height:1.3;letter-spacing:-.01em}
-h3{font-size:var(--t-h3)}
-
-:where(a,button,input,select,summary,[tabindex]):focus-visible{
-  outline:2.5px solid var(--rosa);outline-offset:3px;border-radius:4px;
+html{
+  font-size:17px;
+  -webkit-text-size-adjust:100%;
+  scroll-behavior:smooth;
+  scroll-padding-top:calc(var(--altezza-testata) + 1rem);
 }
+body{
+  margin:0;background:var(--bianco);color:var(--inchiostro);
+  font-family:var(--font);font-size:var(--t-corpo);line-height:1.65;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+img,svg,video{max-width:100%;height:auto;display:block}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+a{color:var(--rosa-scuro);text-decoration:none}
+h1,h2,h3,h4{margin:0;font-weight:600;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+ul,ol{margin:0;padding:0;list-style:none}
 
-.salta{position:absolute;left:-9999px;top:0;z-index:200;background:var(--nero);
-  color:#fff;padding:.75rem 1.15rem;border-radius:0 0 var(--raggio) 0;text-decoration:none}
+:focus-visible{outline:2.5px solid var(--rosa);outline-offset:3px;border-radius:2px}
+
+.solo-lettori{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+.salta{
+  position:absolute;left:-9999px;top:0;z-index:200;
+  background:var(--inchiostro);color:#fff;padding:.8rem 1.2rem;
+  border-radius:0 0 var(--r-xs) 0;font-size:var(--t-piccolo);font-weight:600;
+}
 .salta:focus{left:0}
-.solo-lettori{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
-  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
-/* ── impianto ────────────────────────────────────────────────────────── */
-.involucro{width:100%;max-width:var(--max);margin-inline:auto;padding-inline:var(--gutter)}
-.involucro--largo{max-width:88rem}
-.sezione{padding-block:var(--sezione);position:relative}
-.sezione--panna{background:var(--panna)}
-.sezione--velo{background:var(--rosa-velo)}
-.sezione--stretta .involucro{max-width:46rem}
-
-.intestazione{text-align:center;max-width:44rem;margin:0 auto clamp(2.4rem,1.4rem + 2.6vw,3.6rem)}
-.occhiello{display:block;font-size:var(--t-micro);font-weight:800;letter-spacing:.22em;
-  text-transform:uppercase;color:var(--rosa);margin-bottom:1rem}
-.intestazione h2{text-wrap:balance}
-.intestazione .guida{margin-top:1.1rem}
-.guida{font-size:var(--t-guida);line-height:1.6;color:var(--grigio);max-width:38rem;margin-inline:auto}
-.testo{max-width:36rem;color:var(--grigio)}
-.filetto{width:2.6rem;height:3px;background:var(--giallo);border-radius:3px;margin:1.5rem auto 0}
-.corsivo{font-family:var(--font-titolo);font-style:italic;color:var(--rosa)}
-
-/* ── striscia dell'annuncio ──────────────────────────────────────────────
-   Fondo in gradiente coi colori del marchio, con una luce che ci passa
-   sopra ogni tanto. Si muove solo la luce, e solo in transform: non pesa. */
-.annuncio{
-  position:relative;overflow:hidden;isolation:isolate;
-  background:linear-gradient(90deg,
-    #8E0538 0%, var(--rosa) 30%, var(--rosa) 70%, #8E0538 100%);
-  color:#fff;text-align:center;
-  padding:.62rem calc(var(--gutter) + .5rem);
-  font-size:clamp(.72rem,.66rem + .22vw,.82rem);
-  letter-spacing:.16em;text-transform:uppercase;font-weight:600;
-  line-height:1.45;
-}
-/* La data sta in una pastiglia gialla con testo quasi nero: prima era
-   giallo su rosa, 2,4:1, cioe illeggibile proprio sul dato piu importante.
-   Cosi il rapporto sale sopra 12:1 e la data si vede da lontano. */
-.annuncio__data{
-  display:inline-block;
-  background:var(--giallo);color:#14110F;
-  font-weight:800;letter-spacing:.08em;
-  font-size:1.02em;white-space:nowrap;
-  padding:.12em .5em;border-radius:999px;
-  box-shadow:0 0 16px rgba(253,200,5,.4);
-}
-.annuncio::after{
-  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background:linear-gradient(105deg,
-    transparent 0%, rgba(255,255,255,.10) 45%, rgba(255,255,255,.20) 50%,
-    rgba(255,255,255,.10) 55%, transparent 100%);
-  width:45%;transform:translateX(-160%);
-}
-@media (prefers-reduced-motion:no-preference){
-  .annuncio::after{animation:luccichio 12s ease-in-out infinite}
-}
-@keyframes luccichio{
-  0%,68%{transform:translateX(-160%)}
-  100%  {transform:translateX(360%)}
-}
-
-/* ── testata ─────────────────────────────────────────────────────────── */
-.testata{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.97);
-  border-bottom:1px solid transparent;transition:border-color .3s, box-shadow .3s}
-.testata.staccata{border-bottom-color:var(--bordo);box-shadow:0 8px 24px -20px rgba(20,17,15,.5)}
-.testata__riga{display:flex;align-items:center;gap:1rem;min-height:4.5rem}
-.marchio{display:flex;align-items:center;gap:.65rem;text-decoration:none;margin-right:auto}
-.marchio__piastra{background:var(--notte);border-radius:9px;padding:.36rem .55rem;display:flex}
-.marchio__piastra img{height:1.95rem;width:auto}
-.marchio__nome{display:none;font-family:var(--font-titolo);font-weight:700;
-  font-size:1.02rem;line-height:1.12;letter-spacing:-.01em}
-
-.menu-apri,.menu-chiudi{display:inline-flex;align-items:center;gap:.5rem;background:none;
-  border:1px solid var(--bordo-forte);border-radius:999px;padding:.55rem .95rem;
-  font-weight:600;font-size:var(--t-piccolo);cursor:pointer}
-.menu-apri__barre{display:block;width:1rem;height:2px;background:currentColor;position:relative}
-.menu-apri__barre::before,.menu-apri__barre::after{content:"";position:absolute;left:0;
-  width:100%;height:2px;background:currentColor}
-.menu-apri__barre::before{top:-5px}
-.menu-apri__barre::after{top:5px}
-
-.navigazione{position:fixed;inset:0;z-index:70;background:var(--bianco);
-  padding:1.15rem var(--gutter) 2rem;display:flex;flex-direction:column;
-  transform:translateY(-100%);transition:transform .4s var(--molla);visibility:hidden}
-.navigazione.aperta{transform:translateY(0);visibility:visible}
-.navigazione__testa{display:flex;align-items:center;justify-content:space-between;min-height:3.2rem}
-.navigazione__voci{display:flex;flex-direction:column;gap:.1rem;margin-top:2.2rem}
-.navigazione__voci a{text-decoration:none;font-family:var(--font-titolo);font-size:1.8rem;
-  font-weight:700;letter-spacing:-.015em;padding:.65rem 0;border-bottom:1px solid var(--bordo)}
-.navigazione__coda{margin-top:auto;padding-top:2rem}
-
-/* ── pulsanti ────────────────────────────────────────────────────────── */
-.bottone{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
-  padding:.9rem 1.6rem;border-radius:999px;border:1.5px solid transparent;
-  font-weight:700;font-size:var(--t-piccolo);text-decoration:none;cursor:pointer;
-  position:relative;overflow:hidden;
-  transition:transform .22s var(--molla), background .22s, color .22s, border-color .22s, box-shadow .22s}
-.bottone:hover{transform:translateY(-2px)}
-.bottone:active{transform:translateY(0)}
-.bottone--primario{background:var(--rosa);color:#fff;box-shadow:0 10px 24px -12px rgba(227,11,94,.8)}
-.bottone--primario:hover{background:var(--rosa-scuro);box-shadow:0 16px 32px -12px rgba(227,11,94,.9)}
-.bottone--fantasma{border-color:var(--nero);color:var(--nero)}
-.bottone--fantasma:hover{background:var(--nero);color:#fff}
-.bottone--chiaro{border-color:rgba(255,255,255,.55);color:#fff}
-.bottone--chiaro:hover{background:#fff;color:var(--nero)}
-.bottone--piccolo{padding:.6rem 1.05rem;font-size:var(--t-micro)}
-.bottone--grande{padding:1.1rem 2.1rem;font-size:.95rem}
-.bottone svg{width:1.05em;height:1.05em;flex:none}
-
-.collegamento{display:inline-flex;align-items:center;gap:.45rem;font-weight:700;
-  text-decoration:none;color:var(--rosa-scuro);border-bottom:2px solid var(--rosa-tenue);
-  padding-bottom:2px;transition:gap .22s var(--molla), border-color .22s}
-.collegamento:hover{gap:.75rem;border-bottom-color:var(--rosa)}
-
-/* =========================================================================
-   1 · L'APERTURA — la vetrina allestita
-
-   Una vetrina di notte, costruita a piani come una scena vera:
-     cielo → aloni di luce → pavimento → SCENA (insegna + scarpe) → parola.
-   Le scarpe e l'insegna sono ritagliate davvero, senza fondo: stanno DENTRO
-   la scena, non appoggiate sopra come adesivi.
-   Il piano della scena fa una carrellata lentissima (Ken Burns); i singoli
-   pezzi si muovono a velocità diverse col dito e con lo scorrimento.
-   Si animano soltanto transform e opacity.
-   ========================================================================= */
-.eroe{
-  position:relative;isolation:isolate;overflow:hidden;
-  background:var(--notte);color:#fff;
-  min-height:clamp(34rem,90svh,48rem);
-  display:grid;align-content:center;
-  padding-block:clamp(2rem,1rem + 2.4vw,2.8rem) clamp(1.6rem,1rem + 1.8vw,2.2rem);
-}
-
-/* ── piano 1 · il cielo ───────────────────────────────────────────────── */
-.eroe__cielo{
-  position:absolute;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(120% 85% at 50% 8%, #2A1020 0%, rgba(42,16,32,0) 60%),
-    linear-gradient(168deg, #1B0A14 0%, var(--notte) 52%, #100509 100%);
-}
-.eroe__cielo::after{           /* vignettatura: tiene lo sguardo al centro */
-  content:"";position:absolute;inset:0;
-  background:radial-gradient(115% 78% at 50% 45%, rgba(0,0,0,0) 45%, rgba(0,0,0,.72) 100%);
-}
-
-/* ── piano 2 · gli aloni ──────────────────────────────────────────────── */
-.eroe__aloni{position:absolute;inset:-25%;z-index:0;pointer-events:none}
-.eroe__aloni i{position:absolute;display:block;border-radius:50%;will-change:transform}
-.eroe__aloni i:nth-child(1){
-  width:66vw;height:66vw;max-width:880px;max-height:880px;left:-12%;top:-10%;
-  background:radial-gradient(circle, rgba(247,43,112,.50) 0%, rgba(247,43,112,0) 65%);
-}
-.eroe__aloni i:nth-child(2){
-  width:54vw;height:54vw;max-width:700px;max-height:700px;right:-10%;bottom:-12%;
-  background:radial-gradient(circle, rgba(127,231,247,.24) 0%, rgba(127,231,247,0) 66%);
-}
-.eroe__aloni i:nth-child(3){
-  width:46vw;height:46vw;max-width:600px;max-height:600px;left:40%;top:34%;
-  background:radial-gradient(circle, rgba(253,200,5,.16) 0%, rgba(253,200,5,0) 68%);
-}
-@media (prefers-reduced-motion:no-preference){
-  .eroe__aloni i:nth-child(1){animation:deriva-a 21s ease-in-out infinite alternate}
-  .eroe__aloni i:nth-child(2){animation:deriva-b 26s ease-in-out infinite alternate}
-  .eroe__aloni i:nth-child(3){animation:deriva-c 31s ease-in-out infinite alternate}
-}
-@keyframes deriva-a{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(6%,4%,0) scale(1.14)}}
-@keyframes deriva-b{from{transform:translate3d(0,0,0) scale(1.1)}to{transform:translate3d(-7%,-5%,0) scale(1)}}
-@keyframes deriva-c{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-5%,7%,0) scale(1.2)}}
-
-/* ── piano 3 · il pavimento ───────────────────────────────────────────── */
-.eroe__pavimento{
-  position:absolute;left:-30%;right:-30%;bottom:0;height:36%;z-index:0;pointer-events:none;
-  background:
-    linear-gradient(180deg, rgba(227,11,94,.16) 0%, rgba(10,8,9,0) 72%),
-    repeating-linear-gradient(90deg, rgba(255,255,255,.10) 0 1px, transparent 1px 5.5%),
-    repeating-linear-gradient(0deg, rgba(255,255,255,.07) 0 1px, transparent 1px 13%);
-  transform:perspective(38rem) rotateX(67deg);transform-origin:bottom center;
-  mask-image:linear-gradient(180deg, transparent 0%, #000 46%, #000 100%);
-  -webkit-mask-image:linear-gradient(180deg, transparent 0%, #000 46%, #000 100%);
-}
-
-/* ── piano 4 · LA SCENA ───────────────────────────────────────────────── */
-.eroe__scena{
-  position:absolute;inset:0;z-index:1;pointer-events:none;
-  transform-origin:58% 52%;
-}
-@media (prefers-reduced-motion:no-preference){
-  .eroe__scena{animation:carrellata 38s ease-in-out infinite alternate}
-}
-/* Ken Burns: quasi impercettibile, ma la scena non sta mai del tutto ferma */
-@keyframes carrellata{
-  from{transform:scale(1) translate3d(0,0,0)}
-  to  {transform:scale(1.05) translate3d(-1.2%,-.8%,0)}
-}
-
-/* i pezzi della vetrina: ognuno ha la sua profondità, letta dal JS in --p */
-.eroe__pezzo{
-  position:absolute;display:block;
-  will-change:transform;
-}
-.eroe__pezzo img{width:100%;height:auto;display:block}
-
-/* L'insegna sta SOPRA il titolo, non dietro: è l'insegna della vetrina.
-   Regola di composizione della scena: la colonna centrale, dove sta la
-   parola, resta libera. I pezzi stanno ai bordi e incorniciano. */
-.eroe__pezzo--insegna{
-  position:static;display:block;
-  width:min(38%,14.5rem);margin:0 auto clamp(.8rem,.6rem + .7vw,1.2rem);
-  transform:translate3d(var(--tx,0px),var(--ty,0px),0);
-}
-.eroe__pezzo--insegna img{
-  filter:drop-shadow(0 0 22px rgba(247,43,112,.55)) drop-shadow(0 0 70px rgba(127,231,247,.28));
-}
-
-/* le scarpe: scale e rotazioni diverse, luce rosa sul bordo, ombra a terra */
-.eroe__pezzo--calzatura img{
-  filter:drop-shadow(0 0 14px rgba(247,43,112,.45)) drop-shadow(0 22px 26px rgba(0,0,0,.75));
-}
-.eroe__pezzo--a{left:0%;bottom:1%;width:min(25%,17rem);--r:-9deg}
-.eroe__pezzo--b{right:0%;bottom:3%;width:min(23%,15rem);--r:7deg}
-.eroe__pezzo--c{left:5%;top:22%;width:min(13%,11.5rem);--r:-15deg}
-.eroe__pezzo--d{right:4%;top:18%;width:min(12%,10.5rem);--r:11deg}
-.eroe__pezzo--a,.eroe__pezzo--b,.eroe__pezzo--c,.eroe__pezzo--d{
-  transform:rotate(var(--r)) translate3d(var(--tx,0px),var(--ty,0px),0);
-}
-
-/* ── piano 5 · la parola ──────────────────────────────────────────────── */
-.eroe__parola{
-  position:relative;z-index:3;
-  width:100%;max-width:46rem;margin-inline:auto;padding-inline:var(--gutter);
-  text-align:center;
-}
-/* velo: la parola si legge sempre, qualunque cosa passi dietro */
-.eroe__parola::before{
-  content:"";position:absolute;inset:-14% -18%;z-index:-1;pointer-events:none;
-  background:radial-gradient(60% 55% at 50% 50%, rgba(8,6,7,.85) 0%, rgba(8,6,7,0) 72%);
-}
-.eroe h1{
-  color:#fff;font-size:clamp(2.05rem,1.1rem + 3.5vw,3.5rem);
-  line-height:1.05;letter-spacing:-.03em;text-wrap:balance;
-  margin:0 auto .95rem;max-width:none;
-  text-shadow:0 2px 40px rgba(0,0,0,.85), 0 0 90px rgba(0,0,0,.6);
-}
-.eroe__sotto{
-  font-size:clamp(1rem,.95rem + .38vw,1.2rem);line-height:1.6;
-  color:rgba(255,255,255,.86);margin:0 auto .9rem;max-width:38ch;
-  text-shadow:0 1px 20px rgba(0,0,0,.8);
-}
-.eroe__invito{
-  font-family:var(--font-titolo);font-style:italic;
-  font-size:clamp(1.08rem,.96rem + .68vw,1.42rem);color:var(--rosa-vivo);
-  margin:0 auto;max-width:32ch;display:inline-block;
-  text-shadow:0 1px 22px rgba(0,0,0,.85);
-}
-.eroe__invito::after{
-  content:"";display:block;height:3px;border-radius:3px;margin-top:.5rem;
-  background:linear-gradient(90deg,var(--rosa-vivo) 22%,rgba(247,43,112,0));
-  transform-origin:left;
-}
-.eroe__azioni{
-  display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;
-  margin-top:clamp(1.5rem,1rem + 1.4vw,2.1rem);
-}
-.eroe__azioni .bottone--primario{box-shadow:0 14px 30px -12px rgba(227,11,94,1)}
-.eroe__azioni .bottone--primario:hover{box-shadow:0 20px 40px -12px rgba(227,11,94,1),
-  0 0 30px -2px rgba(247,43,112,.8)}
-
-/* ── entrata a sipario ────────────────────────────────────────────────── */
-@media (prefers-reduced-motion:no-preference){
-  .eroe__parola>*{animation:entra-su .95s var(--molla) backwards}
-  .eroe__parola>*:nth-child(1){animation-delay:.35s}
-  .eroe__parola>*:nth-child(2){animation-delay:.45s}
-  .eroe__parola>*:nth-child(3){animation-delay:.55s}
-  .eroe__parola>*:nth-child(4){animation-delay:.65s}
-  .eroe__parola>*:nth-child(5){animation-delay:.75s}
-  .eroe__invito::after{animation:tratto 1.1s var(--molla) 1.2s backwards}
-  /* le scarpe entrano ognuna dalla sua parte, l'insegna scende */
-  .eroe__parola .eroe__pezzo--insegna{animation:cala 1.3s var(--molla) backwards}
-  .eroe__pezzo--a{animation:da-sinistra 1.2s var(--molla) .15s backwards}
-  .eroe__pezzo--b{animation:da-destra 1.2s var(--molla) .28s backwards}
-  .eroe__pezzo--c{animation:da-sinistra 1.2s var(--molla) .40s backwards}
-  .eroe__pezzo--d{animation:da-destra 1.2s var(--molla) .52s backwards}
-  .eroe__fatti{animation:entra-su .95s var(--molla) .95s backwards}
-}
-@keyframes entra-su{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
-@keyframes tratto{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes cala{from{opacity:0;transform:translateY(-16px) scale(.94)}
-  to{opacity:1;transform:none}}
-@keyframes da-sinistra{from{opacity:0;transform:rotate(var(--r)) translateX(-14%)}
-  to{opacity:1;transform:rotate(var(--r))}}
-@keyframes da-destra{from{opacity:0;transform:rotate(var(--r)) translateX(14%)}
-  to{opacity:1;transform:rotate(var(--r))}}
-
-/* ── la barra dei fatti ───────────────────────────────────────────────── */
-.eroe__fatti{
-  position:relative;z-index:3;
-  width:100%;max-width:var(--max);margin:clamp(.9rem,.7rem + .8vw,1.3rem) auto 0;
+.involucro{
+  width:100%;max-width:var(--max);margin-inline:auto;
   padding-inline:var(--gutter);
 }
-.eroe__fatti ul{
-  display:grid;grid-template-columns:1fr;gap:.2rem;
-  background:rgba(12,9,11,.78);border:1px solid rgba(255,255,255,.16);
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-  border-radius:var(--raggio-g);padding:.4rem;
-}
-.eroe__fatti li{
-  display:flex;align-items:center;gap:.8rem;padding:.7rem .95rem;border-radius:12px;
-  transition:background .3s;
-}
-.eroe__fatti li:hover{background:rgba(255,255,255,.075)}
-.eroe__fatti svg{width:1.3rem;height:1.3rem;flex:none;color:var(--rosa-vivo)}
-.eroe__fatti b{display:block;font-size:.82rem;font-weight:800;color:#fff;line-height:1.25}
-.eroe__fatti span{display:block;font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
-  color:rgba(255,255,255,.55);font-weight:700}
+.involucro--largo{max-width:var(--max-largo)}
 
-/* ── da telefono: scena più raccolta, niente ritagli, niente strettoie ── */
+/* ── 4 · impianto di banda ────────────────────────────────────────────
+   Una banda = una idea = una forma. Rotazione dei toni:
+   bianco -> nube -> bianco -> velo. Mai due uguali di fila; il velo non
+   torna prima di due bande di distanza. */
+.sezione{padding-block:var(--banda);background:var(--bianco);position:relative}
+.sezione--nube{background:var(--nube)}
+.sezione--velo{background:var(--velo)}
+.sezione--scura{background:var(--scuro);color:#fff}
+.sezione--stretta{padding-block:calc(var(--banda) * .68)}
+
+.intestazione{max-width:var(--max-titolo);margin-inline:auto;text-align:center}
+.intestazione--sinistra{margin-inline:0;text-align:left}
+
+/* l'occhiello e' l'ETICHETTA (1-2 parole). Il titolo e' la DOMANDA VERA che
+   farebbe un cliente. Prima erano due etichette in fila: e' li' che il sito
+   smetteva di parlare come un negozio. */
+.occhiello{
+  display:inline-flex;align-items:center;gap:.6rem;
+  font-size:var(--t-micro);font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--rosa);
+  margin-bottom:var(--s3);
+}
+.occhiello::before{
+  content:"";width:1.6rem;height:1px;background:currentColor;
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .5s var(--e-entrata) .12s;
+}
+.dentro .occhiello::before,.occhiello.dentro::before{transform:scaleX(1)}
+.sezione--scura .occhiello{color:var(--rosa-linea)}
+
+.sezione h2{
+  font-family:var(--font-titolo);font-size:var(--t-h2);font-weight:600;
+  line-height:1.08;letter-spacing:-.02em;margin:0;
+}
+h2 .corsivo{font-style:italic;font-weight:500}
+
+.guida{
+  font-size:var(--t-guida);line-height:1.55;color:var(--grigio);
+  max-width:var(--max-testo);margin:var(--s4) auto 0;
+}
+.intestazione--sinistra .guida{margin-inline:0}
+.sezione--scura .guida{color:rgba(255,255,255,.72)}
+
+.corpo-banda{margin-top:var(--intestazione-corpo)}
+
+/* le quattro categorie come le vuole copy.md §3: elenco in pagina, non solo
+   pulsanti del filtro */
+.categorie-elenco{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:var(--s2) var(--s4);
+  margin:var(--s4) auto 0;max-width:var(--max-testo);
+  font-size:var(--t-piccolo);font-weight:600;color:var(--inchiostro);
+}
+.categorie-elenco li{display:flex;align-items:center;gap:var(--s2)}
+.categorie-elenco li + li::before{
+  content:"";width:4px;height:4px;border-radius:50%;background:var(--rosa);flex:none;
+}
+.intestazione--sinistra .categorie-elenco{justify-content:flex-start;margin-inline:0}
+
+.chiusa{
+  font-family:var(--font-titolo);font-style:italic;font-weight:500;
+  font-size:var(--t-h3);color:var(--rosa-scuro);
+  text-align:center;max-width:var(--max-testo);
+  margin:clamp(1.4rem,1rem + 1.3vw,2.2rem) auto 0;line-height:1.4;
+}
+
+/* ── 5 · componenti ───────────────────────────────────────────────────── */
+
+/* 5.1 · bottoni — il rosa pieno vuol dire UNA cosa sola: scrivi su WhatsApp */
+.bottone{
+  display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);
+  border-radius:var(--r-pill);
+  font-size:.9375rem;font-weight:600;letter-spacing:.02em;line-height:1.2;
+  padding:14px 26px;min-height:48px;border:1px solid transparent;
+  transition:background var(--d-breve) var(--e-morbida),
+             color var(--d-breve) var(--e-morbida),
+             border-color var(--d-breve) var(--e-morbida);
+  position:relative;overflow:hidden;text-align:center;
+}
+.bottone--grande{padding:17px 32px;font-size:1rem;min-height:54px}
+.bottone svg{width:18px;height:18px;flex:none}
+
+.bottone--primario{
+  background:var(--rosa);color:#fff;
+  box-shadow:0 8px 20px -12px rgba(227,11,94,.55);
+}
+.bottone--primario:hover{background:var(--rosa-scuro)}
+
+.bottone--secondario{
+  background:transparent;border-color:var(--inchiostro);color:var(--inchiostro);
+}
+.bottone--secondario:hover{background:var(--inchiostro);color:#fff}
+
+.bottone--chiaro{  /* solo sulla banda scura */
+  background:transparent;border-color:rgba(255,255,255,.5);color:#fff;
+}
+.bottone--chiaro:hover{background:#fff;color:var(--inchiostro)}
+
+/* lampo sul bottone: solo al passaggio, mai da fermo. Un lampo continuo sa
+   di saldi, non di boutique. */
+.bottone::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.30) 50%,transparent 65%);
+  transform:translateX(-120%);
+}
+.bottone:hover::after{transform:translateX(120%);transition:transform .7s var(--e-morbida)}
+
+.collegamento{
+  color:var(--rosa-scuro);font-weight:600;
+  border-bottom:1px solid var(--rosa-linea);
+  transition:border-color var(--d-breve);
+}
+.collegamento:hover{border-color:var(--rosa)}
+
+/* 5.2 · telaio — OGNI foto sta dentro un telaio. Nessun ritaglio senza
+   fondo, nessuna rotazione, nessuna ombra colorata. Mai. */
+.telaio{
+  margin:0;border:var(--filo);border-radius:var(--r-m);
+  background:var(--nube);overflow:hidden;position:relative;
+}
+.telaio--grande{border-radius:var(--r-l)}
+.telaio img{width:100%;height:100%;object-fit:cover;display:block}
+.telaio--contiene img{object-fit:contain;padding:7%;background:var(--bianco)}
+
+/* 5.3 · pillole — un solo linguaggio di forma */
+.fatti{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.fatto{
+  display:inline-flex;align-items:center;gap:var(--s2);
+  border:1px solid var(--linea-forte);border-radius:var(--r-pill);
+  background:var(--bianco);padding:8px 14px;
+  font-size:var(--t-piccolo);font-weight:500;color:var(--inchiostro);
+}
+.fatto svg{width:16px;height:16px;flex:none;color:var(--rosa)}
+
+/* 5.4 · scheda di contenuto */
+.carta{
+  background:var(--bianco);border:var(--filo);border-radius:var(--r-m);
+  padding:clamp(1.4rem,1rem + 1.2vw,2rem);
+  transition:border-color var(--d-breve),box-shadow var(--d-breve),
+             transform var(--d-breve) var(--e-morbida);
+}
+.carta:hover{border-color:var(--linea-forte);box-shadow:var(--ombra);transform:translateY(-2px)}
+.carta h3{font-family:var(--font-titolo);font-size:var(--t-h3);margin-bottom:var(--s2)}
+.carta p{color:var(--grigio)}
+.sezione--nube .carta{background:var(--bianco)}
+
+/* numero di passo: cerchio sottile, non rosa pieno — il rosa pieno e' di WhatsApp */
+.carta__numero{
+  display:flex;align-items:center;justify-content:center;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--velo);border:1px solid var(--rosa-linea);
+  font-family:var(--font-titolo);color:var(--rosa);font-size:1.1rem;
+  margin-bottom:var(--s4);
+}
+
+/* 5.5 · riquadro di nota */
+.nota{
+  border:var(--filo);border-radius:var(--r-s);background:var(--bianco);
+  padding:clamp(1.1rem,.9rem + .8vw,1.5rem);
+  color:var(--grigio);
+}
+.nota b{color:var(--inchiostro);font-weight:600}
+
+/* ── 6 · testata e menu ───────────────────────────────────────────────── */
+.annuncio{
+  margin:0;background:var(--rosa-scuro);color:#fff;text-align:center;
+  font-size:var(--t-micro);font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;padding:.6rem var(--gutter);line-height:1.6;
+}
+.annuncio__data{
+  display:inline-block;background:#fff;color:var(--rosa-scuro);
+  border-radius:var(--r-pill);padding:.1rem .6rem;letter-spacing:.1em;
+}
+
+.testata{
+  position:sticky;top:0;z-index:100;background:var(--bianco);
+  border-bottom:1px solid transparent;
+  transition:border-color var(--d-breve),box-shadow var(--d-breve),
+             padding-block var(--d-breve) var(--e-morbida);
+  padding-block:var(--s3);
+}
+.testata.staccata{
+  border-bottom-color:var(--linea);
+  box-shadow:0 10px 24px -22px rgba(26,20,22,.35);
+  padding-block:var(--s2);
+}
+.testata__riga{display:flex;align-items:center;justify-content:space-between;gap:var(--s4)}
+
+.marchio{display:flex;align-items:center;gap:var(--s3);color:var(--inchiostro)}
+.marchio img{width:auto;height:46px;transition:height var(--d-breve) var(--e-morbida)}
+.testata.staccata .marchio img{height:38px}
+.marchio__nome{
+  font-family:var(--font-titolo);font-size:1.1rem;font-weight:600;
+  line-height:1.15;letter-spacing:-.01em;
+}
+.marchio__nome span{display:block}
+
+.navigazione ul{display:flex;align-items:center;gap:var(--s6)}
+.navigazione a{
+  color:var(--inchiostro);font-size:.9375rem;font-weight:500;
+  padding-block:.3rem;position:relative;
+}
+.navigazione a::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:var(--rosa);transform:scaleX(0);transform-origin:right;
+  transition:transform .35s var(--e-morbida);
+}
+.navigazione a:hover::after{transform:scaleX(1);transform-origin:left}
+
+.testata__azioni{display:flex;align-items:center;gap:var(--s3)}
+.menu-bottone{
+  display:none;align-items:center;gap:var(--s2);
+  border:1px solid var(--linea-forte);border-radius:var(--r-pill);
+  padding:10px 18px;font-size:var(--t-piccolo);font-weight:600;min-height:44px;
+}
+.menu-bottone svg{width:18px;height:18px}
+.menu-chiudi{position:absolute;top:var(--gutter);right:var(--gutter)}
+
 @media (max-width:899px){
-  .eroe{min-height:clamp(30rem,86svh,42rem);padding-block:1.4rem}
-  .eroe__parola::before{inset:-10% -14%}
-  .eroe__pezzo--insegna{width:min(54%,13rem);margin-top:.4rem}
-  /* da telefono le scarpe affiancano l'insegna in alto: in basso finivano
-     dietro la barra dei fatti e dell'apertura non si vedeva un prodotto */
-  .eroe__pezzo--a{left:-9%;top:0;bottom:auto;width:45%;--r:-11deg}
-  .eroe__pezzo--b{right:-9%;top:7%;bottom:auto;width:41%;--r:9deg}
-  .eroe__pezzo--c,.eroe__pezzo--d{display:none}
-  .eroe__pavimento{height:52%}
-  /* si stringono le interlinee: i due pulsanti restano sopra la piega */
-  .eroe h1{font-size:2rem;margin-bottom:.55rem;max-width:none}
-  .eroe__sotto{line-height:1.45;margin-bottom:.5rem}
-  .eroe__azioni{margin-top:.9rem;gap:.6rem}
-  .eroe__azioni .bottone{padding-block:.85rem;width:100%;max-width:20rem}
-  .eroe__fatti li{padding:.55rem .9rem}
+  .navigazione{
+    position:fixed;inset:0;z-index:150;background:var(--bianco);
+    display:flex;flex-direction:column;padding:var(--gutter);
+    transform:translateY(-100%);visibility:hidden;
+    transition:transform .45s var(--e-morbida),visibility .45s;
+  }
+  .navigazione.aperta{transform:none;visibility:visible}
+  .navigazione ul{flex-direction:column;align-items:flex-start;gap:var(--s5);margin-top:var(--s9)}
+  .navigazione a{font-family:var(--font-titolo);font-size:1.75rem}
+  .navigazione a::after{display:none}
+  .menu-bottone{display:inline-flex}
+  .testata__azioni > .bottone{display:none}
+  .marchio__nome{display:none}
+}
+@media (min-width:900px){
+  .menu-chiudi{display:none}
 }
 
-/* =========================================================================
-   2 · IL CATALOGO
-   ========================================================================= */
-.filtro{
-  position:sticky;top:4.5rem;z-index:30;
-  margin:0 calc(var(--gutter)*-1) clamp(1.8rem,1rem + 1.8vw,2.6rem);
-  padding:.9rem var(--gutter);
-  background:rgba(255,255,255,.95);border-block:1px solid var(--bordo);
+/* ── 7 · apertura — «vetrina di notte» ─────────────────────────────────
+   Rifatta il 02/09/2026 sull energia del riferimento: stanza scura, luci di
+   scena rosa e ambra, insegna al neon, prodotti illuminati da un faro.
+
+   Tre cose del riferimento NON si copiano:
+     · la fascia con spedizioni 24/48h, pagamenti sicuri e resi 14 giorni —
+       il negozio non ha carrello, non ha corriere e non ha politica di reso;
+     · la modella generata al computer — non e nessuno di questo negozio, e
+       metterla vorrebbe dire mentire su chi ci lavora;
+     · niente altro cambia: testi verbatim, numero WhatsApp confermato.
+   Il ruolo di «star» che nel riferimento ha la modella qui ce l ha la foto
+   grande del prodotto, con lo stesso trattamento da faro.
+
+   Regola di sempre: tutto si muove, niente galleggia. Ogni foto sta dentro
+   il suo telaio, il movimento avviene dentro il ritaglio. ---------------- */
+.eroe{
+  --h-nero:#0B0709;
+  --h-nero-2:#160E13;
+  --h-rosa:#FF3D7F;
+  --h-ambra:#F0A93C;
+  --h-panna:#F4EDEA;          /* 17:1 sul nero */
+  --h-panna-tenue:rgba(244,237,234,.78);
+  --h-filo:rgba(255,255,255,.14);
+
+  position:relative;isolation:isolate;overflow:hidden;
+  background:var(--h-nero);color:var(--h-panna);
+  padding-block:clamp(1rem,.8rem + 1vw,1.6rem) 0;
 }
-.filtro__lista{display:flex;gap:.45rem;overflow-x:auto;scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
-  mask-image:linear-gradient(90deg,#000 92%,transparent);
-  -webkit-mask-image:linear-gradient(90deg,#000 92%,transparent);}
+
+/* ── piano 0 · le luci di scena ──────────────────────────────────────── */
+.eroe__fondo{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.eroe__fondo::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(90% 70% at 76% 6%, #2A1220 0%, rgba(42,18,32,0) 60%),
+    linear-gradient(168deg, var(--h-nero-2) 0%, var(--h-nero) 52%, #070405 100%);
+}
+.eroe__bagliore{position:absolute;display:block;border-radius:50%;will-change:transform}
+.eroe__bagliore--rosa{
+  width:62vw;height:62vw;max-width:820px;max-height:820px;right:-14%;top:-24%;
+  background:radial-gradient(circle, rgba(255,61,127,.42) 0%, rgba(255,61,127,0) 64%);
+}
+.eroe__bagliore--ambra{
+  width:52vw;height:52vw;max-width:680px;max-height:680px;left:-16%;bottom:-26%;
+  background:radial-gradient(circle, rgba(240,169,60,.30) 0%, rgba(240,169,60,0) 66%);
+}
+.eroe__bagliore--faro{  /* il fascio che cade sul prodotto grande */
+  width:44vw;height:44vw;max-width:560px;max-height:560px;left:52%;top:6%;
+  background:radial-gradient(circle, rgba(255,255,255,.13) 0%, rgba(255,255,255,0) 62%);
+}
+.eroe__velo{
+  position:absolute;inset:0;display:block;
+  background:radial-gradient(118% 76% at 50% 44%, rgba(0,0,0,0) 40%, rgba(0,0,0,.74) 100%);
+}
+
+/* ── piano 1 · i neon: tacco e onda, tratto luminoso ─────────────────── */
+.eroe__neon{
+  position:absolute;display:block;pointer-events:none;
+  fill:none;stroke-linecap:round;stroke-linejoin:round;
+  transform:translate3d(var(--tx,0px),var(--ty,0px),0);
+  will-change:transform,opacity;
+}
+.eroe__neon--tacco{
+  width:min(26vw,300px);right:3%;top:8%;
+  stroke:var(--h-rosa);stroke-width:2.2;opacity:.55;
+  filter:drop-shadow(0 0 6px rgba(255,61,127,.9)) drop-shadow(0 0 18px rgba(255,61,127,.55));
+}
+.eroe__neon--onda{
+  left:-4%;right:-4%;bottom:5%;width:108%;
+  stroke:var(--h-ambra);stroke-width:2;opacity:.34;
+  filter:drop-shadow(0 0 6px rgba(240,169,60,.8)) drop-shadow(0 0 16px rgba(240,169,60,.45));
+}
+
+.eroe__griglia{
+  position:relative;z-index:2;
+  display:grid;gap:clamp(2rem,1.2rem + 3vw,3.4rem);align-items:center;
+}
+@media (min-width:900px){
+  .eroe__griglia{grid-template-columns:6.1fr 5.9fr}
+}
+
+/* ── l insegna: lucida e accesa ──────────────────────────────────────── */
+.eroe__insegna{
+  position:relative;display:block;width:min(56%,15.5rem);
+  margin-bottom:clamp(.9rem,.7rem + .8vw,1.4rem);
+}
+/* il bagliore sta su uno strato suo: si anima solo la sua opacita.
+   Animare «filter» sull immagine costerebbe un ridisegno a ogni fotogramma. */
+.eroe__insegna::before{
+  content:"";position:absolute;left:-14%;top:-16%;right:-14%;bottom:-16%;
+  z-index:-1;border-radius:50%;
+  background:radial-gradient(closest-side, rgba(255,61,127,.55) 0%, rgba(255,61,127,0) 72%);
+}
+.eroe__insegna img{
+  width:100%;height:auto;display:block;
+  filter:drop-shadow(0 0 14px rgba(255,61,127,.45)) drop-shadow(0 16px 30px rgba(0,0,0,.7));
+}
+
+.eroe__parola{max-width:40rem}
+.eroe h1{
+  font-family:var(--font-titolo);font-size:var(--t-h1);font-weight:600;
+  line-height:1.05;letter-spacing:-.025em;margin:0 0 var(--s3);
+  color:var(--h-panna);text-wrap:normal;
+  text-shadow:0 2px 26px rgba(0,0,0,.7);
+}
+.eroe h1 .corsivo{
+  display:block;position:relative;width:max-content;max-width:100%;
+  font-style:italic;font-weight:500;color:var(--h-rosa);padding-bottom:.14em;
+  text-shadow:0 0 24px rgba(255,61,127,.45);
+}
+.eroe h1 .corsivo::after{
+  content:"";position:absolute;left:0;right:12%;bottom:0;height:3px;
+  border-radius:3px;
+  background:linear-gradient(90deg,var(--h-rosa),rgba(255,61,127,0));
+  box-shadow:0 0 12px rgba(255,61,127,.8);
+  transform:scaleX(0);transform-origin:left;
+}
+
+.eroe__sotto{
+  font-size:var(--t-guida);line-height:1.55;color:var(--h-panna-tenue);
+  max-width:38ch;margin-bottom:var(--s2);
+}
+.eroe__invito{
+  font-family:var(--font-titolo);font-style:italic;font-size:var(--t-h3);
+  color:var(--h-ambra);max-width:34ch;margin-bottom:var(--s3);line-height:1.4;
+}
+.eroe__azioni{display:flex;flex-wrap:wrap;gap:var(--s3)}
+.eroe__azioni .bottone--primario{
+  background:var(--rosa);
+  box-shadow:0 14px 34px -12px rgba(227,11,94,.95), 0 0 22px -6px rgba(255,61,127,.55);
+  transition:background var(--d-breve) var(--e-morbida),
+             transform var(--d-breve) var(--e-morbida),
+             box-shadow var(--d-breve) var(--e-morbida);
+}
+.eroe__azioni .bottone--primario:hover{
+  background:var(--h-rosa);transform:translateY(-2px);
+  box-shadow:0 22px 48px -12px rgba(227,11,94,1), 0 0 34px -4px rgba(255,61,127,.85);
+}
+.eroe__azioni .bottone--secondario{
+  border-color:rgba(255,255,255,.45);color:var(--h-panna);
+  transition:background var(--d-breve),color var(--d-breve),
+             border-color var(--d-breve),transform var(--d-breve) var(--e-morbida);
+}
+.eroe__azioni .bottone--secondario:hover{
+  background:var(--h-panna);color:var(--h-nero);border-color:var(--h-panna);
+  transform:translateY(-2px);
+}
+
+/* ── piano 2 · la scena: i prodotti sotto il faro ────────────────────── */
+.eroe__scena{position:relative;aspect-ratio:1/1;width:100%}
+.eroe__pezzo{
+  position:absolute;margin:0;background:#fff;
+  border:1px solid rgba(255,255,255,.22);border-radius:var(--r-l);
+  /* il puntatore e lo scorrimento scrivono solo --tx/--ty: la trasformazione
+     di base resta qui e non viene mai sovrascritta dal JS */
+  transform:translate3d(var(--tx,0px),var(--ty,0px),0);
+  will-change:transform;
+}
+/* alone dietro il telaio: e il faro che stacca il prodotto dal nero */
+.eroe__pezzo::before{
+  content:"";position:absolute;inset:-14%;z-index:-1;border-radius:50%;
+  background:radial-gradient(closest-side, rgba(255,61,127,.34) 0%, rgba(255,61,127,0) 72%);
+}
+.eroe__pezzo--principale::before{
+  background:radial-gradient(closest-side, rgba(255,255,255,.30) 0%, rgba(255,61,127,.20) 46%, rgba(255,61,127,0) 74%);
+}
+/* Tre livelli di trasformazione separati, uno per movimento, cosi non si
+   annullano a vicenda:
+     figure  -> parallasse (--tx/--ty scritte dal JS)
+     span    -> galleggiamento lento e continuo
+     img     -> entrata, e rotazione al passaggio del dito              */
+.eroe__pezzo > .eroe__telaio{
+  display:block;overflow:hidden;border-radius:calc(var(--r-l) - 1px);
+  box-shadow:0 40px 80px -30px rgba(0,0,0,.95);
+}
+
+/* al passaggio: il prodotto gira appena verso chi guarda e si avvicina */
+@media (hover:hover) and (pointer:fine){
+  .eroe__pezzo{transition:filter .4s var(--e-morbida)}
+  .eroe__pezzo:hover{z-index:6}
+  .eroe__pezzo:hover img{transform:rotate(-2.4deg) scale(1.08)}
+  .eroe__pezzo--alto:hover img{transform:rotate(2.6deg) scale(1.08)}
+  .eroe__pezzo--basso:hover img{transform:rotate(-1.8deg) scale(1.08)}
+}
+/* col dito non esiste il passaggio: al tocco una versione piu leggera,
+   senza stati appiccicati addosso */
+@media (hover:none){
+  .eroe__pezzo:active img{transform:scale(1.035)}
+}
+.eroe__pezzo img{
+  width:100%;height:100%;object-fit:contain;padding:7%;background:#fff;
+  transition:transform .55s var(--e-morbida);
+}
+/* le due foto su modella hanno il loro ambiente: riempiono il telaio invece
+   di stare dentro con l aria bianca intorno */
+.eroe__pezzo--ambiente img{object-fit:cover;padding:0}
+.eroe__pezzo--principale{left:0;top:7%;width:60%;aspect-ratio:3/4;z-index:3}
+.eroe__pezzo--alto{right:0;top:0;width:41%;aspect-ratio:1/1;z-index:2}
+.eroe__pezzo--basso{right:5%;bottom:2%;width:45%;aspect-ratio:1/1;z-index:4}
+.eroe__pezzo--principale .eroe__telaio{aspect-ratio:3/4}
+.eroe__pezzo--alto .eroe__telaio,
+.eroe__pezzo--basso .eroe__telaio{aspect-ratio:1/1}
+
+/* ── piano 3 · la fascia dei fatti, su vetro scuro ───────────────────── */
+.eroe__fatti{
+  position:relative;z-index:2;
+  margin-top:clamp(1rem,.8rem + .9vw,1.6rem);
+  padding-bottom:clamp(.7rem,.6rem + .5vw,1.1rem);
+}
+.eroe__fatti ul{
+  display:grid;gap:var(--s4);
+  border:1px solid var(--h-filo);border-radius:var(--r-l);
+  background:rgba(255,255,255,.06);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:0 24px 60px -40px rgba(0,0,0,.9);
+  padding:var(--s3) var(--s5);
+}
+@media (min-width:760px){
+  .eroe__fatti ul{grid-template-columns:repeat(3,1fr);gap:var(--s5)}
+  .eroe__fatti li + li{border-left:1px solid var(--h-filo);padding-left:var(--s5)}
+}
+.eroe__fatti li{display:flex;align-items:center;gap:var(--s3)}
+/* icona dentro un cerchio acceso, come nella fascia del riferimento */
+.eroe__fatti i{
+  display:flex;align-items:center;justify-content:center;flex:none;
+  width:42px;height:42px;border-radius:50%;
+  background:rgba(255,61,127,.14);border:1px solid rgba(255,61,127,.4);
+  box-shadow:0 0 18px -4px rgba(255,61,127,.55), inset 0 0 12px -6px rgba(255,61,127,.8);
+}
+.eroe__fatti svg{width:20px;height:20px;color:var(--h-rosa)}
+.eroe__fatti b{
+  display:block;font-size:.9375rem;font-weight:700;color:var(--h-panna);line-height:1.3;
+}
+.eroe__fatti span{
+  display:block;font-size:var(--t-micro);font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(244,237,234,.58);
+}
+
+/* ── da telefono: prima il telefono ──────────────────────────────────── */
+@media (max-width:899px){
+  .eroe{padding-block:clamp(1rem,.8rem + 1vw,1.6rem) 0}
+  .eroe__parola{max-width:none}
+  .eroe__insegna{width:min(52%,13rem)}
+  .eroe__griglia{gap:1.5rem}
+  .eroe__invito{margin-bottom:var(--s4)}
+  .eroe__azioni{gap:var(--s2)}
+  /* una foto sola e grande: due francobolli in fila non aiutano nessuno */
+  .eroe__scena{aspect-ratio:4/5;max-width:21rem;margin-inline:auto}
+  .eroe__pezzo--alto,.eroe__pezzo--basso{display:none}
+  .eroe__pezzo--principale{
+    position:relative;left:auto;top:auto;width:100%;aspect-ratio:4/5;
+  }
+  .eroe__pezzo--principale .eroe__telaio{aspect-ratio:4/5}
+  .eroe__neon--tacco{width:44vw;right:-6%;top:2%;opacity:.4}
+  .eroe__fatti li + li{padding-top:var(--s3);border-top:1px solid var(--h-filo)}
+}
+
+/* ── 8 · catalogo ─────────────────────────────────────────────────────── */
+.filtro{margin-block:var(--s5) var(--s6);border-block:var(--filo);padding-block:var(--s4)}
+.filtro__titolo{
+  font-size:var(--t-micro);font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--grigio);margin-bottom:var(--s3);
+}
+.filtro__lista{display:flex;gap:var(--s2);overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .filtro__lista::-webkit-scrollbar{display:none}
 .filtro__voce{
-  flex:none;background:var(--bianco);border:1px solid var(--bordo-forte);border-radius:999px;
-  padding:.58rem 1.2rem;font-size:var(--t-piccolo);font-weight:600;white-space:nowrap;cursor:pointer;
-  transition:background .22s, color .22s, border-color .22s, transform .22s var(--molla);
+  flex:none;border:1px solid var(--linea-forte);border-radius:var(--r-pill);
+  background:var(--bianco);padding:10px 20px;min-height:44px;
+  font-size:var(--t-piccolo);font-weight:600;color:var(--inchiostro);
+  transition:background var(--d-breve),color var(--d-breve),border-color var(--d-breve);
 }
-.filtro__voce:hover{transform:translateY(-2px);border-color:var(--nero)}
-.filtro__voce[aria-pressed="true"]{background:var(--rosa);border-color:var(--rosa);color:#fff;
-  box-shadow:0 8px 18px -10px rgba(227,11,94,.8)}
+.filtro__voce:hover{border-color:var(--inchiostro)}
+/* selezionato = INCHIOSTRO, non rosa. Due rossi che gridano insieme non li
+   vince nessuno dei due. */
+.filtro__voce[aria-pressed="true"]{
+  background:var(--inchiostro);border-color:var(--inchiostro);color:#fff;
+}
 
-.griglia{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:clamp(.7rem,.3rem + 1.6vw,1.7rem)}
-.vuoto{grid-column:1/-1;padding:3.5rem 0;text-align:center;color:var(--grigio);font-size:var(--t-guida)}
-.ancora{display:flex;justify-content:center;margin-top:clamp(2rem,1.2rem + 2vw,3rem)}
-.ancora .bottone{min-width:15rem}
+.griglia{
+  display:grid;gap:var(--gap-griglia);grid-auto-rows:1fr;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+@media (min-width:720px){.griglia{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1100px){.griglia{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
-/* scheda prodotto */
 .scheda{
-  background:var(--bianco);border:1px solid var(--bordo);border-radius:var(--raggio);
-  overflow:hidden;display:flex;flex-direction:column;
-  transition:box-shadow .35s var(--molla), border-color .35s, transform .35s var(--molla);
+  display:flex;flex-direction:column;
+  background:var(--bianco);border:var(--filo);border-radius:var(--r-m);
+  overflow:hidden;
+  transition:border-color var(--d-breve),box-shadow var(--d-breve),
+             transform var(--d-breve) var(--e-morbida);
 }
-.scheda:hover{
-  box-shadow:0 3px 8px rgba(20,17,15,.05), 0 28px 52px -22px rgba(227,11,94,.40),
-             0 0 0 1px var(--rosa-tenue);
-  border-color:var(--rosa-tenue);transform:translateY(-6px);
+/* a riposo NIENTE ombra: solo un filo. L'ombra arriva col passaggio. */
+.scheda:hover{border-color:var(--linea-forte);box-shadow:var(--ombra);transform:translateY(-2px)}
+
+/* UN SOLO rapporto per tutto il catalogo: 4/5, scarpe e abiti insieme.
+   contain e non cover: la punta della scarpa non si taglia mai. */
+.scheda__foto{position:relative;aspect-ratio:4/5;background:var(--nube);overflow:hidden;flex:none}
+.scheda__foto img{
+  width:100%;height:100%;object-fit:contain;padding:7%;
+  transition:transform var(--d-media) var(--e-morbida);
 }
-.scheda__foto{position:relative;overflow:hidden;background:var(--panna);aspect-ratio:1/1}
-/* Il formato verticale vale solo nella griglia degli abiti: nel catalogo
-   misto stavano affiancate foto da 171px e da 228px, e la riga ballava. */
-.griglia--abiti .scheda--abito .scheda__foto{aspect-ratio:3/4}
-.griglia{grid-auto-rows:1fr}
-.scheda__foto img{width:100%;height:100%;object-fit:cover;transition:transform .7s var(--molla)}
-.scheda:hover .scheda__foto img,
-.scheda:focus-within .scheda__foto img{transform:scale(1.07)}
+.scheda:hover .scheda__foto img{transform:scale(1.03)}
+/* foto ambientate: riempiono il riquadro, niente fondo colorato a vista */
+.scheda__foto--pieno img{object-fit:cover;padding:0}
 .scheda__etichetta{
-  position:absolute;left:.6rem;top:.6rem;background:rgba(255,255,255,.95);
-  border:1px solid var(--bordo);border-radius:999px;padding:.24rem .62rem;
-  font-size:.63rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--rosa-scuro);
-}
-.scheda__corpo{padding:.85rem .85rem 1rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
-.scheda__nome{font-size:.94rem;font-weight:700;letter-spacing:-.012em;line-height:1.3}
-.scheda__descrizione{font-size:.8rem;color:var(--grigio);line-height:1.45;margin:0;
-  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-
-.colori{display:flex;flex-wrap:wrap;gap:.32rem;align-items:center}
-.colore{width:1.6rem;height:1.6rem;border-radius:50%;padding:0;
-  border:1.5px solid var(--bordo-forte);background-color:#fff;background-repeat:no-repeat;
-  background-size:230%;background-position:50% 56%;cursor:pointer;overflow:hidden;
-  transition:transform .2s var(--molla), box-shadow .2s, border-color .2s}
-.colore:hover{transform:scale(1.14)}
-.colore[aria-pressed="true"]{border-color:var(--rosa);box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--rosa)}
-.colori__altri{font-size:.71rem;color:var(--grigio-chiaro);line-height:1.35;margin:0;
-  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-
-.misure{margin-top:auto}
-.misure__etichetta{display:block;font-size:.66rem;font-weight:800;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--grigio-chiaro);margin-bottom:.35rem}
-/* Le misure vanno a capo invece di scorrere: prima se ne vedevano tre su
-   sette e le altre restavano nascoste dietro un bordo senza indizi. */
-.misure__riga{display:flex;flex-wrap:wrap;gap:.25rem;padding-bottom:2px}
-.misura{flex:none;min-width:2.1rem;padding:.34rem .38rem;background:var(--bianco);
-  border:1px solid var(--bordo-forte);border-radius:5px;font-size:.79rem;font-weight:700;
-  text-align:center;cursor:pointer;transition:background .18s, color .18s, border-color .18s}
-.misura:hover{border-color:var(--nero)}
-.misura[aria-pressed="true"]{background:var(--nero);border-color:var(--nero);color:#fff}
-.misure__nota{font-size:.77rem;color:var(--grigio-chiaro);margin:0}
-
-.scheda__azione{display:flex;flex-direction:column;gap:.28rem;margin-top:.15rem}
-.scheda__azione .bottone{width:100%;padding:.72rem .8rem;font-size:.79rem;gap:.4rem}
-.scheda__postilla{font-size:.68rem;color:var(--grigio-chiaro);text-align:center;margin:0}
-
-/* Comparsa a cascata delle schede.
-   ATTENZIONE: qui prima c'era «forwards». Un'animazione finita con fill
-   forwards continua a imporre i suoi valori e sta SOPRA agli stili in linea
-   e a :hover - quindi mangiava sia il FLIP del filtro sia il sollevamento
-   della scheda. Con «backwards» l'animazione lascia il posto appena finisce,
-   e main.js toglie comunque la classe a fine corsa. */
-.scheda.entra{animation:sale .55s var(--molla) backwards;
-  animation-delay:calc(var(--i,0) * 45ms)}
-@keyframes sale{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-
-/* Da telefono la foto deve pesare piu del testo: prima era 162px su 534,
-   meno di un terzo della scheda. Formato piu verticale, e via dalla scheda
-   quello che non serve prima del contatto. */
-@media (max-width:599px){
-  .scheda__foto{aspect-ratio:4/5}
-  .scheda__descrizione{display:none}
-  .scheda__postilla{display:none}
-  .scheda__corpo{gap:.42rem;padding:.7rem .7rem .8rem}
+  position:absolute;top:var(--s3);left:var(--s3);
+  background:var(--bianco);border:var(--filo);border-radius:var(--r-pill);
+  padding:.24rem .66rem;
+  font-size:var(--t-micro);font-weight:700;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--rosa-scuro);
 }
 
-/* =========================================================================
-   3 · COME ORDINARE
-   ========================================================================= */
-.passi{counter-reset:passo;display:grid;gap:1.1rem;position:relative}
-.passo{background:var(--bianco);border:1px solid var(--bordo);border-radius:var(--raggio-g);
-  padding:2rem 1.4rem 1.6rem;text-align:center;position:relative;
-  transition:transform .3s var(--molla), box-shadow .3s}
-.passo:hover{transform:translateY(-4px);box-shadow:var(--ombra)}
-.passo::before{
-  counter-increment:passo;content:counter(passo);
-  position:absolute;left:50%;top:-1.1rem;transform:translateX(-50%);
-  display:grid;place-items:center;width:2.6rem;height:2.6rem;border-radius:50%;
-  background:var(--rosa);color:#fff;font-family:var(--font-titolo);font-weight:700;font-size:1.2rem;
-  box-shadow:0 10px 22px -10px rgba(227,11,94,.9);
+.scheda__corpo{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s4) var(--s4) var(--s3);flex:1}
+.scheda__nome{
+  font-family:var(--font);font-size:var(--t-scheda);font-weight:600;
+  letter-spacing:-.012em;line-height:1.28;color:var(--inchiostro);
 }
-.passo p{margin:0;color:var(--grigio)}
-.chiusa{margin-top:clamp(2rem,1.2rem + 2vw,2.8rem);text-align:center;
-  font-family:var(--font-titolo);font-style:italic;
-  font-size:clamp(1.2rem,1rem + .8vw,1.6rem);color:var(--nero)}
+.scheda__descrizione{font-size:var(--t-piccolo);color:var(--grigio);line-height:1.45}
 
-/* =========================================================================
-   4 · LA MISURA
-   ========================================================================= */
-.misura-aiuto{background:var(--bianco);border:1px solid var(--bordo);border-radius:var(--raggio-g);
-  padding:clamp(1.3rem,.8rem + 2vw,2.4rem);box-shadow:var(--ombra);max-width:38rem;margin:2.6rem auto 0}
-.misura-aiuto h3{margin-bottom:1.4rem;text-align:center;font-size:1.12rem}
-.campo{margin-bottom:1.2rem}
-.campo>span{display:block;font-size:.7rem;font-weight:800;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--grigio-chiaro);margin-bottom:.55rem}
-.scala{display:flex;gap:.3rem;overflow-x:auto;padding-bottom:.35rem;scrollbar-width:none}
-.scala::-webkit-scrollbar{display:none}
-.scala button{flex:none;position:relative;width:2.85rem;padding:.62rem 0 .45rem;
-  background:var(--panna);border:1px solid var(--bordo-forte);border-radius:7px;
-  font-weight:700;font-size:.9rem;cursor:pointer;
-  transition:background .18s, color .18s, border-color .18s, transform .18s var(--molla)}
-.scala button::after{content:"";position:absolute;left:50%;bottom:3px;width:1px;height:5px;
-  background:var(--bordo-forte);transform:translateX(-50%)}
-.scala button:hover{transform:translateY(-2px);border-color:var(--nero)}
-.scala button[aria-pressed="true"]{background:var(--nero);border-color:var(--nero);color:#fff}
-.scala button[aria-pressed="true"]::after{background:var(--giallo)}
-.scelte{display:flex;flex-wrap:wrap;gap:.4rem}
-.scelte button{background:var(--panna);border:1px solid var(--bordo-forte);border-radius:999px;
-  padding:.55rem 1.05rem;font-size:var(--t-piccolo);font-weight:600;cursor:pointer;
-  transition:background .18s, color .18s, border-color .18s}
-.scelte button:hover{border-color:var(--nero)}
-.scelte button[aria-pressed="true"]{background:var(--nero);border-color:var(--nero);color:#fff}
-select.campo__scelta{width:100%;padding:.78rem .9rem;border-radius:7px;
-  border:1px solid var(--bordo-forte);background:var(--panna);font:inherit;
-  font-size:var(--t-piccolo);font-weight:600;color:inherit}
-.anteprima{background:var(--rosa-velo);border:1px solid var(--rosa-tenue);border-radius:var(--raggio);
-  padding:1rem 1.1rem;margin:.5rem 0 1.25rem;font-size:var(--t-piccolo);line-height:1.55;color:var(--nero)}
-.anteprima b{display:block;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--rosa-scuro);margin-bottom:.4rem;font-weight:800}
+.colori{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--s1)}
+.colore{
+  width:26px;height:26px;border-radius:50%;
+  border:1.5px solid var(--linea-forte);
+  background-size:220%;background-position:center;
+  transition:border-color var(--d-breve),box-shadow var(--d-breve),transform var(--d-breve);
+}
+.colore:hover{transform:scale(1.08)}
+.colore[aria-pressed="true"]{border:2px solid var(--rosa);box-shadow:0 0 0 2px var(--bianco) inset}
+.colori__altri{font-size:var(--t-micro);color:var(--grigio)}
+
+.misure{
+  display:flex;flex-direction:column;gap:var(--s2);
+  padding-top:var(--s3);border-top:var(--filo);margin-top:var(--s1);
+}
+.misure__etichetta{
+  font-size:var(--t-micro);font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--grigio);
+}
+.misure__riga{display:flex;flex-wrap:wrap;gap:6px}
+.misura{
+  min-width:34px;min-height:32px;padding:.2rem .5rem;
+  border:1px solid var(--linea-forte);border-radius:var(--r-xs);
+  background:var(--bianco);
+  font-size:var(--t-piccolo);font-weight:700;font-variant-numeric:tabular-nums;
+  transition:background var(--d-breve),color var(--d-breve),border-color var(--d-breve);
+}
+.misura:hover{border-color:var(--inchiostro)}
+.misura[aria-pressed="true"]{background:var(--inchiostro);border-color:var(--inchiostro);color:#fff}
+.misure__nota{font-size:var(--t-micro);color:var(--grigio)}
+
+.scheda__azione{display:flex;flex-direction:column;gap:6px;margin-top:auto;padding-top:var(--s3)}
+.scheda__azione .bottone{width:100%;padding:12px 14px;min-height:44px;font-size:var(--t-piccolo)}
+.scheda__postilla{font-size:var(--t-micro);color:var(--grigio);text-align:center}
+.scheda__esaurito{font-size:var(--t-micro);color:var(--rosa-scuro);font-weight:600}
+
+.catalogo__coda{margin-top:var(--s6);text-align:center}
+#nessun-risultato{
+  text-align:center;color:var(--grigio);
+  padding:var(--s8) var(--gutter);border:1px dashed var(--linea-forte);
+  border-radius:var(--r-m);
+}
+
+/* ── 9 · nastro dei prodotti ──────────────────────────────────────────
+   Il pezzo piu' "grande marca" della pagina e insieme il piu' concreto:
+   trenta prodotti veri che scorrono. Una sola trasformazione su un solo
+   involucro: un livello di composizione, zero costo di impaginazione. */
+/* Il nastro sta DENTRO il catalogo, sotto il titolo approvato: non e una
+   sezione a se e non ha un titolo suo. */
+.nastro{margin-block:var(--s5) 0;overflow:hidden}
+.nastro__cornice{
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+}
+.nastro__pista{
+  display:flex;gap:var(--s4);width:max-content;
+  animation:scorri 60s linear infinite;will-change:transform;
+}
+.nastro:hover .nastro__pista,
+.nastro:focus-within .nastro__pista{animation-play-state:paused}
+.nastro__voce{
+  flex:none;width:clamp(126px,13vw,168px);
+  border:var(--filo);border-radius:var(--r-m);background:var(--bianco);
+  overflow:hidden;
+  transition:border-color var(--d-breve),box-shadow var(--d-breve),
+             transform var(--d-breve) var(--e-morbida);
+}
+.nastro__voce a{display:flex;flex-direction:column;height:100%;color:inherit}
+.nastro__voce:hover{
+  border-color:var(--linea-forte);box-shadow:var(--ombra);transform:translateY(-2px);
+}
+.nastro__voce img{
+  width:100%;aspect-ratio:4/5;object-fit:contain;padding:8%;
+  background:var(--bianco);flex:none;
+}
+/* il nome sotto la foto: sono prodotti veri, non decorazione */
+.nastro__voce span{
+  display:block;padding:.6rem .7rem;
+  font-size:var(--t-micro);font-weight:600;color:var(--grigio);
+  line-height:1.35;text-align:center;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+@keyframes scorri{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+
+/* ── 10 · bande di contenuto ──────────────────────────────────────────── */
+.due-colonne{display:grid;gap:clamp(1.6rem,1.2rem + 1.9vw,3rem);align-items:start}
+@media (min-width:900px){
+  .due-colonne{grid-template-columns:1fr 1fr}
+  /* la colonna foto resta ferma mentre il testo scorre: sembra un piano
+     sequenza e non costa una riga di JS */
+  .colonna-ferma{position:sticky;top:calc(var(--altezza-testata) + var(--s6))}
+}
+.due-colonne p + p{margin-top:var(--s4)}
+.due-colonne .telaio{aspect-ratio:16/10}
+
+/* ancora visiva di sezione: la foto porta il peso che prima non c era.
+   Stesso trattamento dell apertura — alone, ombra, galleggiamento — cosi
+   il linguaggio del movimento resta uno solo in tutto il sito. */
+.due-colonne .telaio--ancora{
+  position:relative;aspect-ratio:4/3;max-width:26rem;background:var(--nube);
+  border:1px solid rgba(255,255,255,.6);border-radius:var(--r-l);
+  box-shadow:0 40px 80px -34px rgba(120,60,45,.5), 0 8px 22px -14px rgba(26,20,22,.22);
+  overflow:visible;
+}
+.telaio--ancora::before{
+  content:"";position:absolute;inset:-9%;z-index:-1;border-radius:50%;
+  background:radial-gradient(closest-side, rgba(227,11,94,.26) 0%, rgba(227,11,94,0) 72%);
+}
+.telaio--ancora img{
+  width:100%;height:100%;object-fit:cover;border-radius:calc(var(--r-l) - 1px);
+  transition:transform .55s var(--e-morbida);
+}
+@media (hover:hover) and (pointer:fine){
+  .telaio--ancora:hover img{transform:rotate(-1.8deg) scale(1.06)}
+}
+@media (hover:none){
+  .telaio--ancora:active img{transform:scale(1.03)}
+}
+.due-colonne .telaio--ritratto{aspect-ratio:3/4}
+.due-colonne__testo p{color:var(--grigio)}
+
+.pilastri{display:grid;gap:var(--gap-griglia)}
+@media (min-width:760px){.pilastri{grid-template-columns:repeat(3,1fr)}}
+.pilastri--due{grid-template-columns:1fr}
+@media (min-width:760px){.pilastri--due{grid-template-columns:repeat(2,1fr)}}
+
+.elenco-punti{display:flex;flex-direction:column;gap:var(--s4)}
+.elenco-punti li{display:flex;gap:var(--s3);align-items:flex-start;color:var(--grigio)}
+.elenco-punti svg{width:20px;height:20px;flex:none;color:var(--rosa);margin-top:.28rem}
+
+/* il nome: una citazione centrata e basta. Molta aria, nient'altro. */
+.citazione{
+  font-family:var(--font-titolo);font-style:italic;font-weight:500;
+  font-size:clamp(1.5rem,1.15rem + 1.7vw,2.4rem);line-height:1.35;
+  text-align:center;max-width:24ch;margin-inline:auto;color:var(--inchiostro);
+}
+.citazione__sotto{
+  text-align:center;color:var(--grigio);max-width:var(--max-testo);
+  margin:var(--s5) auto 0;
+}
+
+/* la misura — il modulo che prepara il messaggio */
+.misura-aiuto{
+  border:var(--filo);border-radius:var(--r-l);background:var(--bianco);
+  padding:clamp(1.5rem,1.1rem + 1.6vw,2.5rem);
+  max-width:44rem;margin:var(--intestazione-corpo) auto 0;
+}
+.misura-aiuto h3{font-family:var(--font-titolo);font-size:var(--t-h3);margin-bottom:var(--s5)}
+.campo{margin-bottom:var(--s4)}
+.campo > span{
+  display:block;font-size:var(--t-micro);font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--grigio);margin-bottom:var(--s3);
+}
+.scala,.scelte{display:flex;flex-wrap:wrap;gap:6px}
+.scala button,.scelte button{
+  min-height:44px;padding:.5rem .9rem;
+  border:1px solid var(--linea-forte);border-radius:var(--r-xs);
+  background:var(--bianco);font-size:var(--t-piccolo);font-weight:600;
+  font-variant-numeric:tabular-nums;
+  transition:background var(--d-breve),color var(--d-breve),border-color var(--d-breve);
+}
+.scala button:hover,.scelte button:hover{border-color:var(--inchiostro)}
+.scala button[aria-pressed="true"],.scelte button[aria-pressed="true"]{
+  background:var(--inchiostro);border-color:var(--inchiostro);color:#fff;
+}
+.campo__scelta{
+  width:100%;min-height:48px;padding:.6rem .9rem;
+  border:1px solid var(--linea-forte);border-radius:var(--r-xs);background:var(--bianco);
+}
+.anteprima{
+  display:block;border:var(--filo);border-radius:var(--r-s);
+  background:var(--nube);padding:var(--s4);margin-bottom:var(--s5);
+  font-size:var(--t-piccolo);color:var(--grigio);
+}
+.anteprima b{
+  display:block;font-size:var(--t-micro);font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--inchiostro);margin-bottom:var(--s2);
+}
 .misura-aiuto .bottone{width:100%}
 
-/* =========================================================================
-   5 · INAUGURAZIONE
-   ========================================================================= */
-.inaugurazione{background:var(--notte);color:#fff;overflow:hidden;position:relative}
-.inaugurazione::before{
-  content:"";position:absolute;left:50%;top:-30%;width:70rem;height:70rem;
-  transform:translateX(-50%);pointer-events:none;
-  background:radial-gradient(circle, rgba(227,11,94,.30) 0%, rgba(227,11,94,0) 65%);
-}
-.inaugurazione>*{position:relative}
-.inaugurazione h2{color:#fff}
-.inaugurazione .guida{color:rgba(255,255,255,.75)}
-.inaugurazione .occhiello{color:var(--giallo)}
-.inaugurazione__griglia{display:grid;gap:clamp(2.2rem,1.2rem + 4vw,3.5rem);align-items:center}
-.inaugurazione__volantino{border-radius:var(--raggio-g);overflow:hidden;
-  box-shadow:0 40px 80px -34px rgba(0,0,0,.9);max-width:19rem;margin-inline:auto;
-  transform:rotate(-2deg);transition:transform .5s var(--molla)}
-.inaugurazione__volantino:hover{transform:rotate(0) scale(1.02)}
-.contatore{display:flex;gap:.5rem;flex-wrap:wrap;margin:1.7rem 0 1.9rem}
-.contatore div{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);
-  border-radius:var(--raggio);padding:.8rem 1rem;min-width:4.4rem;text-align:center}
-.contatore b{display:block;font-family:var(--font-titolo);font-size:1.6rem;
-  font-weight:700;line-height:1.1;color:#fff}
-.contatore span{font-size:.63rem;text-transform:uppercase;letter-spacing:.13em;
-  color:rgba(255,255,255,.55);font-weight:700}
+/* inaugurazione — il volantino DRITTO dentro la sua cornice */
+.inaugurazione__griglia{display:grid;gap:clamp(1.6rem,1.2rem + 1.9vw,3rem);align-items:center}
+@media (min-width:900px){.inaugurazione__griglia{grid-template-columns:1fr 1fr}}
+.volantino{border:var(--filo);border-radius:var(--r-l);overflow:hidden;background:var(--bianco)}
+.volantino img{width:100%;display:block}
 
-/* =========================================================================
-   6 · LE SCARPE — nastro che scorre e non si ferma mai
-   ========================================================================= */
-.nastro{position:relative;overflow:hidden;
-  margin-inline:calc(var(--gutter)*-1);
-  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
-.nastro__pista{display:flex;gap:1rem;width:max-content;padding:.4rem var(--gutter)}
+/* ── 11 · domande, mappa, richiamo, pie' ──────────────────────────────── */
+.fisarmonica{max-width:var(--max-titolo);margin-inline:auto;border-top:var(--filo)}
+.fisarmonica__voce{border-bottom:var(--filo)}
+.fisarmonica__voce h3{margin:0;font-size:inherit;font-weight:inherit}
+.fisarmonica__testa{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  gap:var(--s4);padding:var(--s4) 0;text-align:left;
+  font-family:var(--font);font-size:var(--t-corpo);font-weight:600;
+  color:var(--inchiostro);min-height:56px;
+}
+.fisarmonica__testa::after{
+  content:"";width:11px;height:11px;flex:none;
+  border-right:1.5px solid var(--rosa);border-bottom:1.5px solid var(--rosa);
+  transform:rotate(45deg) translateY(-3px);
+  transition:transform .35s var(--e-morbida);
+}
+.fisarmonica__testa[aria-expanded="true"]::after{transform:rotate(-135deg) translateY(2px)}
+.fisarmonica__corpo{height:0;overflow:hidden;transition:height .35s var(--e-morbida)}
+.fisarmonica__corpo p{padding-bottom:var(--s5);color:var(--grigio);max-width:var(--max-testo)}
+
+/* dove siamo — il numero civico gigante: l'unico numero grande del sito */
+.civico{display:flex;align-items:center;gap:clamp(1.5rem,1rem + 2vw,3rem);flex-wrap:wrap}
+.civico__cerchio{
+  width:8.5rem;height:8.5rem;flex:none;border-radius:50%;
+  border:1px solid var(--rosa-linea);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-titolo);font-weight:500;color:var(--rosa);
+  font-size:clamp(3.5rem,2.5rem + 4vw,5.5rem);line-height:1;
+}
+.mappa{border:var(--filo);border-radius:var(--r-l);overflow:hidden;background:var(--nube)}
+.mappa img,.mappa svg{width:100%;display:block}
+
+/* il richiamo finale — UNICA banda scura di tutto il sito */
+.richiamo{text-align:center}
+.richiamo h2{
+  font-family:var(--font-titolo);font-size:var(--t-h2);color:#fff;
+  max-width:18ch;margin-inline:auto;
+}
+.richiamo .guida{margin-bottom:var(--s7)}
+.richiamo__telefono{display:block;margin-top:var(--s5);font-size:var(--t-piccolo)}
+.richiamo__telefono a{color:#fff;border-bottom:1px solid rgba(255,255,255,.4)}
+
+.pie{
+  position:relative;
+  background:var(--inchiostro);color:rgba(255,255,255,.72);
+  padding-block:var(--s8) var(--s5);
+}
+/* filo rosa in cima: chiude la pagina con l accento del marchio, come la
+   barra d annuncio la apre */
+.pie::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:2px;
+  background:linear-gradient(90deg,var(--rosa),rgba(227,11,94,.15) 55%,transparent);
+}
+.pie__griglia{display:grid;gap:var(--s6)}
+@media (min-width:760px){.pie__griglia{grid-template-columns:1.4fr 1fr 1fr}}
+.pie h3{
+  font-size:var(--t-micro);font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:var(--s4);
+}
+.pie a{
+  color:rgba(255,255,255,.82);
+  border-bottom:1px solid transparent;
+  transition:color var(--d-breve),border-color var(--d-breve);
+}
+.pie a:hover{color:#fff;border-bottom-color:var(--rosa)}
+.pie li + li{margin-top:var(--s3)}
+.pie__marchio{
+  font-family:var(--font-titolo);font-size:clamp(1.4rem,1.2rem + .6vw,1.9rem);
+  font-weight:600;letter-spacing:-.015em;color:#fff;margin-bottom:var(--s3);
+}
+.pie__griglia > div:first-child p:last-child{max-width:26ch;line-height:1.6}
+.pie__legale{
+  margin-top:var(--s8);padding-top:var(--s5);
+  border-top:1px solid rgba(255,255,255,.14);
+  font-size:var(--t-micro);color:rgba(255,255,255,.55);
+  display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);justify-content:space-between;
+  letter-spacing:.02em;
+}
+.pie__legale a{color:rgba(255,255,255,.75)}
+
+/* ── 12 · barre fisse ─────────────────────────────────────────────────── */
+.barra-telefono{
+  position:fixed;left:0;right:0;bottom:0;z-index:90;
+  display:none;gap:var(--s2);padding:var(--s3) var(--gutter);
+  background:rgba(255,255,255,.94);backdrop-filter:blur(10px);
+  border-top:var(--filo);
+  transform:translateY(110%);transition:transform .4s var(--e-morbida);
+  margin-bottom:var(--barra-cookie,0px);
+}
+.barra-telefono.visibile{transform:none}
+.barra-telefono .bottone{flex:1;padding:12px 14px;min-height:46px;font-size:var(--t-piccolo)}
+@media (max-width:899px){.barra-telefono{display:flex}}
+
+.cookie-bar{
+  position:fixed;left:0;right:0;bottom:0;z-index:95;
+  background:var(--inchiostro);color:rgba(255,255,255,.85);
+  display:flex;align-items:center;justify-content:center;gap:var(--s4);
+  padding:var(--s3) var(--gutter);font-size:var(--t-piccolo);
+}
+.cookie-bar a{color:#fff;border-bottom:1px solid rgba(255,255,255,.4)}
+.cookie-bar__x{color:#fff;font-size:1.3rem;line-height:1;flex:none;min-width:44px;min-height:44px}
+
+/* ── 13 · movimento ───────────────────────────────────────────────────
+   Tutto ritagliato, tutto porta un prodotto o una parola. Si animano solo
+   transform, opacity, clip-path e mask: mai filter, mai width/height/top. */
 @media (prefers-reduced-motion:no-preference){
-  .nastro__pista{animation:scorri 46s linear infinite}
-}
-@keyframes scorri{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.nastro__voce{flex:0 0 auto;width:clamp(9rem,7rem + 12vw,14rem);
-  background:var(--bianco);border:1px solid var(--bordo);border-radius:var(--raggio);overflow:hidden}
-.nastro__voce img{aspect-ratio:1/1;object-fit:cover;width:100%;background:var(--panna)}
-.nastro__voce span{display:block;padding:.65rem .75rem .8rem;font-size:.79rem;font-weight:600}
 
-/* =========================================================================
-   7 · ABBIGLIAMENTO — griglia editoriale
-   ========================================================================= */
-.griglia--abiti{margin-top:0}
+  /* 13.1 · comparse allo scorrimento */
+  /* Il contenuto si nasconde SOLO se il JS e' partito davvero (classe messa
+     sull'<html> alla prima riga). Se il JS non arriva o va in errore prima,
+     la pagina resta leggibile invece di diventare bianca. */
+  .con-js .rivela{
+    opacity:0;transform:translateY(12px);
+    transition:opacity var(--d-media) var(--e-entrata),
+               transform var(--d-media) var(--e-entrata);
+  }
+  .con-js .rivela.dentro{opacity:1;transform:none}
+  .rivela--r2{transition-delay:.1s}
+  .rivela--r3{transition-delay:.2s}
 
-/* =========================================================================
-   8 · IL NEGOZIO
-   ========================================================================= */
-.notte__griglia{display:grid;gap:clamp(2rem,1rem + 4vw,3.5rem);align-items:center}
-.notte__insegna{background:var(--notte);border-radius:var(--raggio-g);
-  padding:clamp(1.1rem,.6rem + 2vw,2.1rem);box-shadow:var(--ombra-alta)}
-.notte__insegna img{filter:drop-shadow(0 0 18px rgba(247,43,112,.4))}
+  /* sfalsamento dei figli: sei per banda, oltre diventa una cascata */
+  .scaglione.dentro > *{
+    animation:sale var(--d-media) var(--e-entrata) backwards;
+    animation-delay:calc(var(--r,0) * 60ms);
+  }
+  @keyframes sale{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
-/* =========================================================================
-   9 · IL NOME
-   ========================================================================= */
-.nome{text-align:center;overflow:hidden;background:var(--panna)}
-.nome__cifra{display:block;font-family:var(--font-titolo);
-  font-size:clamp(5rem,2rem + 17vw,13rem);font-weight:700;line-height:.84;
-  letter-spacing:-.05em;color:var(--rosa);font-variant-numeric:tabular-nums;
-  text-shadow:0 18px 40px rgba(227,11,94,.22)}
-.nome__unita{display:block;font-size:.78rem;font-weight:800;letter-spacing:.45em;
-  text-transform:uppercase;color:var(--grigio-chiaro);margin-top:1rem}
-.nome__stecca{display:flex;justify-content:center;gap:.5rem;margin:2rem 0 2.6rem;
-  height:2.2rem;align-items:flex-end}
-.nome__stecca i{width:2px;background:var(--bordo-forte);border-radius:2px;height:.7rem;
-  transform-origin:bottom;transition:height .5s var(--molla)}
-.nome__stecca i:nth-child(5n+1){height:1.8rem;background:var(--giallo)}
+  /* 13.2 · l apertura come pezzo di motion graphics.
+     Sequenza d entrata, circa 2,3s, in quest ordine:
+       luci di scena -> insegna che si accende con un guizzo -> titolo riga
+       per riga -> sottotitolo e invito -> bottoni -> prodotti a strati ->
+       fascia dei fatti.
+     Poi restano i cicli ambientali: deriva delle luci, respiro dei neon,
+     parallasse col puntatore (la scrive il JS in --tx/--ty).
+     Si animano solo transform, opacity e clip-path. Nessun «filter»
+     animato: costerebbe un ridisegno a ogni fotogramma. */
 
-/* =========================================================================
-   11 · DOMANDE
-   ========================================================================= */
-.fisarmonica{border-top:1px solid var(--bordo);max-width:44rem;margin-inline:auto}
-.fisarmonica__voce{border-bottom:1px solid var(--bordo);transition:background .25s}
-.fisarmonica__voce:hover{background:var(--panna)}
-.fisarmonica__testa{width:100%;display:flex;align-items:center;justify-content:space-between;
-  gap:1rem;background:none;border:0;padding:1.35rem .6rem;text-align:left;cursor:pointer;
-  font-size:clamp(1rem,.95rem + .3vw,1.14rem);font-weight:700;letter-spacing:-.01em;line-height:1.35}
-.fisarmonica__segno{flex:none;width:1.65rem;height:1.65rem;border-radius:50%;
-  border:1.5px solid var(--bordo-forte);position:relative;
-  transition:background .26s, border-color .26s, color .26s, transform .26s var(--molla)}
-.fisarmonica__segno::before,.fisarmonica__segno::after{content:"";position:absolute;left:50%;top:50%;
-  background:currentColor;transform:translate(-50%,-50%);transition:transform .3s var(--molla)}
-.fisarmonica__segno::before{width:.7rem;height:1.5px}
-.fisarmonica__segno::after{width:1.5px;height:.7rem}
-[aria-expanded="true"] .fisarmonica__segno{background:var(--rosa);border-color:var(--rosa);
-  color:#fff;transform:rotate(90deg)}
-[aria-expanded="true"] .fisarmonica__segno::after{transform:translate(-50%,-50%) scaleY(0)}
-.fisarmonica__corpo{overflow:hidden;height:0;transition:height .36s var(--molla)}
-.fisarmonica__corpo p{padding:0 .6rem 1.4rem;color:var(--grigio);max-width:52ch}
+  /* le luci entrano per prime, da ferme */
+  .eroe__bagliore{animation:accendi 1.4s var(--e-entrata) backwards}
+  .eroe__bagliore--rosa{animation-delay:0s}
+  .eroe__bagliore--ambra{animation-delay:.12s}
+  .eroe__bagliore--faro{animation-delay:.24s}
+  @keyframes accendi{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
 
-/* =========================================================================
-   12 · DOVE SIAMO
-   ========================================================================= */
-.dove__griglia{display:grid;gap:clamp(1.8rem,1rem + 3vw,3rem);align-items:center}
-.mappa{display:block;position:relative;border-radius:var(--raggio-g);overflow:hidden;
-  border:1px solid var(--bordo);background:var(--panna);text-decoration:none;
-  transition:box-shadow .35s, transform .35s var(--molla)}
-.mappa:hover{box-shadow:var(--ombra-alta);transform:translateY(-3px)}
-.mappa svg{display:block;width:100%;height:auto}
-.mappa__pillola{position:absolute;left:50%;bottom:1.1rem;transform:translateX(-50%);
-  background:var(--bianco);border:1px solid var(--bordo-forte);border-radius:999px;
-  padding:.6rem 1.15rem;font-size:var(--t-piccolo);font-weight:700;white-space:nowrap;box-shadow:var(--ombra)}
-.recapiti{display:grid;gap:1.15rem;margin:1.9rem 0 0}
-.recapito{display:flex;gap:.85rem;align-items:flex-start;color:var(--grigio)}
-.recapito svg{width:1.3rem;height:1.3rem;flex:none;margin-top:.2rem;color:var(--rosa)}
-.recapito a{font-weight:700;color:var(--nero)}
+  /* l insegna si accende come un neon: tre guizzi e poi ferma.
+     Pochi passi e nessun lampo netto: deve sembrare un tubo che parte,
+     non uno stroboscopio. */
+  .eroe__insegna img{animation:insegna 1.1s var(--e-entrata) .30s backwards}
+  @keyframes insegna{
+    from{opacity:0;transform:scale(.94) translateY(-10px)}
+    to  {opacity:1;transform:none}
+  }
+  .eroe__insegna::before{animation:guizzo 1.5s ease-out .30s backwards}
+  @keyframes guizzo{
+    0%{opacity:0}
+    18%{opacity:.85}
+    26%{opacity:.25}
+    38%{opacity:1}
+    48%{opacity:.5}
+    100%{opacity:1}
+  }
 
-/* ── piede ───────────────────────────────────────────────────────────── */
-.piede{
-  position:relative;overflow:hidden;isolation:isolate;
-  color:rgba(255,255,255,.72);font-size:var(--t-piccolo);
-  padding-block:clamp(3rem,1.6rem + 4vw,4.5rem) 6.5rem;
-  background:
-    radial-gradient(115% 85% at 12% 0%, rgba(227,11,94,.26) 0%, rgba(227,11,94,0) 62%),
-    radial-gradient(95% 75% at 88% 100%, rgba(127,231,247,.12) 0%, rgba(127,231,247,0) 62%),
-    linear-gradient(180deg, #170A12 0%, var(--notte) 62%, #0B0507 100%);
-}
-/* il filo di luce in alto: chiude il sito con gli stessi colori dell'insegna */
-.piede::before{
-  content:"";position:absolute;inset:0 0 auto 0;height:2px;z-index:2;
-  background:linear-gradient(90deg,
-    transparent 0%, var(--rosa) 22%, var(--giallo) 50%, var(--rosa) 78%, transparent 100%);
-  opacity:.9;
-}
-.piede__azione{margin:1.3rem 0 0}
-.piede__azione .bottone{box-shadow:0 12px 28px -14px rgba(227,11,94,.95)}
-.piede__azione .bottone:hover{box-shadow:0 18px 34px -14px rgba(227,11,94,1),
-  0 0 24px -4px rgba(247,43,112,.7)}
-.piede__griglia{display:grid;gap:2.2rem}
-.piede h2,.piede h3{color:#fff;font-size:.95rem;font-weight:800;font-family:var(--font);
-  letter-spacing:.02em;margin-bottom:.85rem}
-.piede a{color:inherit}
-.piede a:hover{color:#fff}
-.piede__voci li{margin-bottom:.45rem}
-.piede__voci a{
-  text-decoration:none;position:relative;display:inline-block;
-  transition:color .25s, transform .25s var(--molla);
-}
-.piede__voci a::after{
-  content:"";position:absolute;left:0;right:0;bottom:-2px;height:1.5px;
-  background:var(--rosa-vivo);transform:scaleX(0);transform-origin:left;
-  transition:transform .28s var(--molla);
-}
-.piede__voci a:hover{color:#fff;transform:translateX(3px)}
-.piede__voci a:hover::after{transform:scaleX(1)}
-.piede__marchio{background:rgba(255,255,255,.06);border-radius:var(--raggio);
-  padding:.95rem;max-width:14rem;margin-bottom:1.15rem;display:block}
-.piede__barra{margin-top:2.8rem;padding-top:1.6rem;border-top:1px solid rgba(255,255,255,.13);
-  display:flex;flex-wrap:wrap;gap:.6rem 1.5rem;align-items:center;font-size:var(--t-micro)}
-.piede__firma a{font-weight:700;color:#fff}
+  /* il titolo riga per riga, da dietro un bordo */
+  .eroe__parola > *:not(.eroe__insegna){animation:tenda var(--d-lunga) var(--e-entrata) backwards}
+  .eroe__parola > *:nth-child(2){animation-delay:.62s}
+  .eroe__parola > *:nth-child(3){animation-delay:.76s}
+  .eroe__parola > *:nth-child(4){animation-delay:.88s}
+  .eroe__parola > *:nth-child(5){animation-delay:1.00s}
+  @keyframes tenda{
+    from{opacity:0;clip-path:inset(100% 0 0 0);transform:translateY(.42em)}
+    to  {opacity:1;clip-path:inset(-14% 0 -14% 0);transform:none}
+  }
 
-/* ── barra fissa da telefono ─────────────────────────────────────────── */
-.barra-telefono{position:fixed;inset:auto 0 0 0;z-index:55;margin-bottom:var(--barra-cookie,0px);
-  padding:.65rem var(--gutter) calc(.65rem + env(safe-area-inset-bottom));
-  background:rgba(255,255,255,.97);border-top:1px solid var(--bordo);
-  display:flex;gap:.55rem;transform:translateY(120%);transition:transform .36s var(--molla)}
-.barra-telefono.visibile{transform:translateY(0)}
-.barra-telefono .bottone{flex:1}
+  /* il tratto sotto la riga in corsivo si disegna e si accende */
+  .eroe h1 .corsivo::after{animation:tratto .9s var(--e-entrata) 1.35s backwards}
+  @keyframes tratto{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  /* se l animazione non parte mai (scheda in secondo piano, compositore
+     rallentato) il tratto resterebbe invisibile: la classe la mette il JS
+     dopo 2,8s e annulla l animazione */
+  .eroe--pronta h1 .corsivo::after{animation:none;transform:scaleX(1)}
 
-/* ── banner cookie ───────────────────────────────────────────────────── */
-.cookie-bar{position:fixed;inset:auto 0 0 0;z-index:80;display:flex;gap:1rem;
-  align-items:center;justify-content:center;
-  padding:.65rem 1rem calc(.65rem + env(safe-area-inset-bottom));
-  font-size:.8rem;line-height:1.35;background:var(--notte);color:#fff}
-.cookie-bar p{margin:0}
-.cookie-bar a{color:var(--giallo);text-decoration:underline;text-underline-offset:2px}
-.cookie-bar__x{background:none;border:0;font-size:1.3rem;line-height:1;cursor:pointer;
-  opacity:.7;padding:0 .2rem;color:#fff}
-.cookie-bar__x:hover{opacity:1}
-@media (max-width:480px){.cookie-bar{font-size:.74rem;padding-inline:.85rem}}
+  /* i prodotti entrano a strati, ognuno col suo ritardo */
+  .eroe__pezzo{animation:posa-telaio 1.1s var(--e-entrata) backwards}
+  .eroe__pezzo--principale{animation-delay:.92s}
+  .eroe__pezzo--alto{animation-delay:1.08s}
+  .eroe__pezzo--basso{animation-delay:1.22s}
+  @keyframes posa-telaio{
+    from{opacity:0;transform:translate3d(0,28px,0) scale(.95)}
+    to  {opacity:1;transform:translate3d(var(--tx,0px),var(--ty,0px),0)}
+  }
+  .eroe__pezzo img{animation:posa 1.3s var(--e-entrata) backwards}
+  .eroe__pezzo--principale img{animation-delay:.92s}
+  .eroe__pezzo--alto img{animation-delay:1.08s}
+  .eroe__pezzo--basso img{animation-delay:1.22s}
+  @keyframes posa{from{transform:scale(1.09)}to{transform:scale(1)}}
 
-/* ── pagine interne ──────────────────────────────────────────────────── */
-.briciole{font-size:var(--t-micro);color:var(--grigio-chiaro);padding-top:1.7rem}
-.briciole a{text-decoration:none;border-bottom:1px solid var(--bordo-forte)}
-.racconto{max-width:42rem;margin-inline:auto}
-.racconto__blocco{padding-block:clamp(2.2rem,1.2rem + 3.5vw,3.4rem);border-bottom:1px solid var(--bordo)}
-.racconto__blocco:last-of-type{border-bottom:0}
-.racconto__blocco h1,.racconto__blocco h2{margin-bottom:1.15rem;text-wrap:balance}
-.racconto__blocco h1{font-size:clamp(2.2rem,1.5rem + 2.6vw,3.4rem)}
-.racconto__blocco p{font-size:var(--t-guida);line-height:1.65;color:var(--grigio)}
-.racconto__blocco p+p{margin-top:.9rem}
-.apertura__azioni{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.9rem}
-.errore{min-height:60vh;display:grid;place-items:center;text-align:center}
-.errore h1{font-size:clamp(2.2rem,1.5rem + 2.6vw,3.4rem)}
+  /* la fascia dei fatti sale per ultima */
+  .eroe__fatti{animation:sale-fatti .9s var(--e-entrata) 1.42s backwards}
+  @keyframes sale-fatti{
+    from{opacity:0;transform:translateY(20px)}
+    to  {opacity:1;transform:none}
+  }
 
-/* ── «scarpe italiane»: un pensiero per carta ────────────────────────── */
-.pilastri{
-  display:grid;gap:clamp(.9rem,.5rem + 1.4vw,1.4rem);
-  max-width:52rem;margin:0 auto clamp(2.4rem,1.4rem + 2.4vw,3.4rem);
-}
-.pilastro{
-  position:relative;isolation:isolate;
-  display:flex;align-items:flex-start;gap:1.1rem;
-  background:var(--bianco);border:1px solid var(--bordo);border-radius:var(--raggio-g);
-  padding:clamp(1.2rem,.8rem + 1.4vw,1.7rem);
-  transition:transform .4s var(--molla), box-shadow .4s, border-color .4s;
-}
-/* l'alone rosa: sta dietro la carta e si accende al passaggio */
-.pilastro::before{
-  content:"";position:absolute;inset:-1px;z-index:-1;border-radius:inherit;
-  background:linear-gradient(135deg,var(--rosa-vivo),var(--rosa),var(--giallo));
-  opacity:0;transition:opacity .4s ease;
-}
-.pilastro::after{
-  content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;
-  background:var(--bianco);
-}
-.pilastro:hover{
-  transform:translateY(-6px);
-  border-color:transparent;
-  box-shadow:0 3px 10px rgba(20,17,15,.05), 0 26px 48px -22px rgba(227,11,94,.42);
-}
-.pilastro:hover::before{opacity:1}
-.pilastro__segno{
-  flex:none;display:grid;place-items:center;width:3rem;height:3rem;border-radius:50%;
-  background:var(--rosa-velo);border:1.5px solid var(--rosa-tenue);color:var(--rosa);
-  transition:background .35s, color .35s, transform .35s var(--molla);
-}
-.pilastro:hover .pilastro__segno{
-  background:var(--rosa);color:#fff;transform:scale(1.12) rotate(-6deg);
-  box-shadow:0 0 0 6px rgba(227,11,94,.10), 0 10px 22px -10px rgba(227,11,94,.8);
-}
-.pilastro__segno svg{width:1.4rem;height:1.4rem}
-.pilastro p{
-  margin:0;font-size:clamp(1rem,.96rem + .3vw,1.14rem);line-height:1.55;
-  color:var(--nero);font-weight:500;align-self:center;
-}
-@media (min-width:700px){ .pilastri{grid-template-columns:1fr 1fr} }
+  /* ── cicli ambientali ─────────────────────────────────────────────── */
+  .eroe__bagliore--rosa{animation:accendi 1.4s var(--e-entrata) backwards,
+                                  deriva-rosa 30s ease-in-out 1.4s infinite alternate}
+  .eroe__bagliore--ambra{animation:accendi 1.4s var(--e-entrata) .12s backwards,
+                                   deriva-ambra 38s ease-in-out 1.5s infinite alternate}
+  @keyframes deriva-rosa{
+    from{transform:translate3d(0,0,0) scale(1)}
+    to  {transform:translate3d(-6%,5%,0) scale(1.14)}
+  }
+  @keyframes deriva-ambra{
+    from{transform:translate3d(0,0,0) scale(1.08)}
+    to  {transform:translate3d(7%,-4%,0) scale(1)}
+  }
 
-/* ── comparsa allo scorrimento ───────────────────────────────────────── */
-.rivela{opacity:0;transform:translateY(24px);
-  transition:opacity .7s var(--molla), transform .7s var(--molla)}
-.rivela.dentro{opacity:1;transform:none}
-.rivela--r2{transition-delay:.1s}
-.rivela--r3{transition-delay:.2s}
+  /* i tre prodotti galleggiano piano, ognuno con il suo tempo: il ritardo
+     negativo li sfasa subito, senza attesa iniziale. Sta sul telaio, cosi
+     non tocca ne la parallasse (sul figure) ne il passaggio (sull img). */
+  .eroe__pezzo > .eroe__telaio{
+    animation:galleggia 7s ease-in-out infinite alternate;
+  }
+  .eroe__pezzo--principale > .eroe__telaio{animation-duration:7.6s;animation-delay:-1.2s}
+  .eroe__pezzo--alto > .eroe__telaio{animation-duration:6.2s;animation-delay:-3.4s}
+  .eroe__pezzo--basso > .eroe__telaio{animation-duration:8.4s;animation-delay:-2.1s}
+  .telaio--ancora{animation:galleggia 9s ease-in-out -2.6s infinite alternate}
+  @keyframes galleggia{
+    from{transform:translate3d(0,-5px,0)}
+    to  {transform:translate3d(0,5px,0)}
+  }
 
-/* Uno «scaglione» fa entrare i figli uno dopo l'altro. L'indice lo mette
-   il JS in --r; senza JS i figli restano visibili, non spariscono. */
-.scaglione.dentro>*{animation:entra-su .7s var(--molla) backwards;
-  animation-delay:calc(var(--r,0) * 90ms)}
+  /* le schede del catalogo entrano a scaglioni: il JS numera --i (0..7) e
+     toglie la classe a fine animazione, cosi il FLIP del filtro e il
+     sollevamento al passaggio restano liberi. Senza la classe la scheda e
+     gia visibile: se l osservatore non parte, il catalogo si vede lo stesso. */
+  .scheda.entra{
+    animation:scheda-entra .68s var(--e-entrata) backwards;
+    animation-delay:calc(var(--i,0) * 65ms);
+  }
+  @keyframes scheda-entra{
+    from{opacity:0;transform:translateY(20px) scale(.985)}
+    to  {opacity:1;transform:none}
+  }
 
-/* ── da 600px ────────────────────────────────────────────────────────── */
-@media (min-width:600px){
-  .marchio__nome{display:block}
-  .griglia{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .scheda__corpo{padding:1rem 1rem 1.2rem}
-  .passi{grid-template-columns:repeat(3,1fr);gap:1.2rem}
-  .piede__griglia{grid-template-columns:1.5fr 1fr 1fr}
-  .eroe__fatti ul{grid-template-columns:repeat(3,1fr)}
+  /* i neon respirano: solo opacita, il bagliore e un filtro fermo */
+  .eroe__neon--tacco{animation:respiro-neon 5.5s ease-in-out 1.6s infinite alternate}
+  .eroe__neon--onda{animation:respiro-neon 7.5s ease-in-out 1.9s infinite alternate}
+  @keyframes respiro-neon{from{opacity:.26}to{opacity:.62}}
+
+  /* 13.3 · il respiro dentro il telaio — questo e' il "video".
+     Il telaio ritaglia: e' l'esatto contrario delle scarpe che galleggiavano. */
+  .respira img{animation:respiro 24s var(--e-morbida) infinite alternate}
+  @keyframes respiro{from{transform:scale(1)}to{transform:scale(1.04)}}
 }
 
-/* ── da 900px ────────────────────────────────────────────────────────── */
-@media (min-width:900px){
-  .menu-apri{display:none}
-  .navigazione{position:static;inset:auto;transform:none;visibility:visible;background:none;
-    padding:0;flex-direction:row;align-items:center;gap:1.8rem}
-  .navigazione__testa{display:none}
-  .navigazione__coda{margin:0;padding:0}
-  .navigazione__voci{flex-direction:row;gap:1.7rem;margin:0}
-  .navigazione__voci a{font-family:var(--font);font-size:var(--t-piccolo);font-weight:600;
-    border-bottom:0;padding:.25rem 0;position:relative}
-  .navigazione__voci a::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:2px;
-    background:var(--rosa);transform:scaleX(0);transform-origin:left;
-    transition:transform .28s var(--molla)}
-  .navigazione__voci a:hover::after,
-  .navigazione__voci a[aria-current="page"]::after{transform:scaleX(1)}
-
-  /* da 900px la vetrina torna un blocco vero: insegna sopra, scaffale sotto,
-     tutto nella colonna di destra. Il testo si allinea a sinistra. */
-
-  .griglia{grid-template-columns:repeat(4,minmax(0,1fr))}
-  .inaugurazione__griglia{grid-template-columns:1.15fr .85fr}
-  .inaugurazione__volantino{margin-inline:0}
-  .notte__griglia{grid-template-columns:1.1fr .9fr}
-  .dove__griglia{grid-template-columns:1.05fr .95fr}
-  .barra-telefono{display:none}
-}
-
-@media (min-width:1180px){ .griglia{gap:1.8rem} }
-
-/* ── meno movimento ──────────────────────────────────────────────────── */
+/* ── 14 · meno movimento, stampa ──────────────────────────────────────── */
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
-    transition-duration:.001ms !important}
+  html{scroll-behavior:auto}
   .rivela{opacity:1;transform:none}
-  .scheda.entra{opacity:1;transform:none;animation:none}
-  .scaffale__telaio{transition:none}
-  .eroe__scaffale li.gira .scaffale__telaio{transform:none}
+  .occhiello::before{transform:scaleX(1)}
+  .eroe h1 .corsivo::after{transform:scaleX(1)}
+  .eroe__pezzo > .eroe__telaio{animation:none}
+  .telaio--ancora{animation:none}
+  .scheda.entra{animation:none}
+  .eroe__scintille{opacity:.45}
+  .nastro__pista{animation:none;width:auto;flex-wrap:wrap;justify-content:center}
+  *,*::before,*::after{animation-duration:.001ms !important;transition-duration:.001ms !important}
 }
 
-/* ── stampa ──────────────────────────────────────────────────────────── */
 @media print{
-  .testata,.barra-telefono,.cookie-bar,.filtro,.annuncio{display:none !important}
-  body{background:#fff}
-  .eroe,.inaugurazione,.piede{background:#fff !important;color:#000 !important}
-  .eroe h1,.inaugurazione h2{color:#000 !important}
+  .testata,.annuncio,.barra-telefono,.cookie-bar,.nastro,.salta{display:none}
+  .sezione,.eroe{padding-block:1.5rem;background:#fff;color:#000}
+  .rivela{opacity:1;transform:none}
+  a[href^="http"]::after{content:" (" attr(href) ")";font-size:.7em}
 }
