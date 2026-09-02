@@ -147,14 +147,23 @@
 
   function applicaFiltro(cat, subito) {
     categoriaViva = cat;
+    var nastro = $(".filtro__lista", filtro);
     $$(".filtro__voce", filtro).forEach(function (b) {
       var acceso = b.dataset.cat === cat;
       b.setAttribute("aria-pressed", String(acceso));
-      // se il filtro acceso sta fuori dal nastro, lo si porta in mezzo:
-      // altrimenti «Vedi gli abiti nel catalogo» accende una voce invisibile
-      if (acceso && b.scrollIntoView) {
-        b.scrollIntoView({ inline: "center", block: "nearest",
-                           behavior: fermo ? "auto" : "smooth" });
+      // se il filtro acceso sta fuori dal nastro, lo si porta in mezzo.
+      // si sposta soltanto il nastro, mai la pagina: scrollIntoView, anche con
+      // block:"nearest", trascinava giu' l'apertura di una settantina di pixel
+      // appena il sito si apriva.
+      if (acceso && nastro && nastro.scrollWidth > nastro.clientWidth) {
+        var meta = b.offsetLeft - (nastro.clientWidth - b.offsetWidth) / 2;
+        var max = nastro.scrollWidth - nastro.clientWidth;
+        meta = Math.max(0, Math.min(meta, max));
+        if (nastro.scrollTo) {
+          nastro.scrollTo({ left: meta, behavior: fermo ? "auto" : "smooth" });
+        } else {
+          nastro.scrollLeft = meta;
+        }
       }
     });
     var carte = $$(".scheda", griglia);
@@ -385,27 +394,51 @@
     });
   }
 
-  /* ── l'apertura si muove col puntatore ───────────────────────────────── */
+  /* ── la parallasse della vetrina ──────────────────────────────────────────
+     Ogni pezzo della scena ha la sua profondità in --p: quelli davanti si
+     spostano di più, quelli in fondo quasi niente. Si scrive solo --tx/--ty,
+     che il CSS compone con la rotazione di base: nessun transform sovrascritto.
+     Un solo rAF in coda, e si ferma quando l'apertura esce di vista. */
   function agganciaParallasse() {
     var eroe = $(".eroe");
-    var insegna = $("#insegna img");
-    if (!eroe || fermo || !insegna) return;
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    var inCoda = false, mx = 0, my = 0;
+    var pezzi = $$(".eroe__pezzo");
+    if (!eroe || !pezzi.length || fermo) return;
+
+    var mx = 0, my = 0, sy = 0, inCoda = false, inVista = true;
+    var puntatore = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
     function disegna() {
-      insegna.style.transform = "translate3d(" + (mx * 10) + "px," + (my * 8) + "px,0)";
       inCoda = false;
+      for (var i = 0; i < pezzi.length; i++) {
+        var n = pezzi[i];
+        var p = parseFloat(getComputedStyle(n).getPropertyValue("--p")) || 0.5;
+        var x = mx * 30 * p;
+        var y = my * 22 * p + sy * 26 * p;
+        n.style.setProperty("--tx", x.toFixed(2) + "px");
+        n.style.setProperty("--ty", y.toFixed(2) + "px");
+      }
     }
-    eroe.addEventListener("pointermove", function (e) {
+    function chiedi() { if (!inCoda && inVista) { inCoda = true; requestAnimationFrame(disegna); } }
+
+    if (puntatore) {
+      eroe.addEventListener("pointermove", function (e) {
+        var r = eroe.getBoundingClientRect();
+        mx = (e.clientX - r.left) / r.width - 0.5;
+        my = (e.clientY - r.top) / r.height - 0.5;
+        chiedi();
+      }, { passive: true });
+      eroe.addEventListener("pointerleave", function () { mx = my = 0; chiedi(); }, { passive: true });
+    }
+
+    window.addEventListener("scroll", function () {
       var r = eroe.getBoundingClientRect();
-      mx = (e.clientX - r.left) / r.width - 0.5;
-      my = (e.clientY - r.top) / r.height - 0.5;
-      if (!inCoda) { inCoda = true; requestAnimationFrame(disegna); }
+      inVista = r.bottom > 0 && r.top < window.innerHeight;
+      if (!inVista) return;
+      sy = Math.max(-1, Math.min(1, -r.top / Math.max(1, r.height)));
+      chiedi();
     }, { passive: true });
-    eroe.addEventListener("pointerleave", function () {
-      mx = my = 0;
-      requestAnimationFrame(disegna);
-    }, { passive: true });
+
+    disegna();
   }
 
   /* ── i cinquanta centimetri che salgono ──────────────────────────────── */
