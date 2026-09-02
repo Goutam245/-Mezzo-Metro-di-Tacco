@@ -647,6 +647,63 @@
   }
 
 
+  /* ── il video dell apertura ──────────────────────────────────────────
+     Tre cose sole, tutte difensive:
+       · con «meno movimento» il video non parte e resta il poster;
+       · se il browser rifiuta la riproduzione automatica (succede su
+         iOS a batteria bassa, o con il risparmio energetico) si torna al
+         poster invece di lasciare un rettangolo nero;
+       · quando l apertura esce dallo schermo il video si mette in pausa:
+         non ha senso far girare un decoder per una cosa che non si vede. */
+  function avviaVideoApertura() {
+    var v = $("#video-apertura");
+    if (!v) return;
+
+    function spegni() {                 // «meno movimento»: mai in moto
+      try { v.pause(); } catch (e) {}
+      v.removeAttribute("autoplay");
+      v.style.display = "none";         // resta il poster, messo in CSS
+    }
+    if (fermo) { spegni(); return; }
+
+    // Se il browser rifiuta la riproduzione automatica NON si nasconde il
+    // video: l attributo poster tiene comunque un fotogramma sullo schermo,
+    // e al primo gesto dell utente si riprova. Nasconderlo per sempre
+    // significherebbe che chi ha il risparmio energetico acceso non vede
+    // mai il video, nemmeno dopo aver toccato la pagina.
+    var giaRiprovato = false;
+    function prova() {
+      var p = v.play();
+      if (p && typeof p.catch === "function") p.catch(function () {});
+    }
+    function riprova() {
+      if (giaRiprovato) return;
+      giaRiprovato = true;
+      prova();
+      ["pointerdown", "touchstart", "keydown", "scroll"].forEach(function (e) {
+        window.removeEventListener(e, riprova);
+      });
+    }
+    var p = v.play();
+    if (p && typeof p.catch === "function") {
+      p.catch(function () {
+        ["pointerdown", "touchstart", "keydown", "scroll"].forEach(function (e) {
+          window.addEventListener(e, riprova, { once: true, passive: true });
+        });
+      });
+    }
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (voci) {
+        voci.forEach(function (x) {
+          if (v.style.display === "none") return;
+          if (x.isIntersecting) { var q = v.play(); if (q && q.catch) q.catch(function () {}); }
+          else { try { v.pause(); } catch (e) {} }
+        });
+      }, { threshold: 0.01 }).observe(v);
+    }
+  }
+
   /* ── parallasse dell apertura ────────────────────────────────────────
      Il JS scrive SOLO due variabili, --tx e --ty. La trasformazione di base
      resta nel CSS e non viene mai sovrascritta: e la lezione della versione
@@ -748,6 +805,7 @@
   cascata(griglia);
   cascata(grigliaAbiti);
   costruisciRighello();
+  avviaVideoApertura();
   agganciaParallasse();
   attivaRivela();
   suScroll();
