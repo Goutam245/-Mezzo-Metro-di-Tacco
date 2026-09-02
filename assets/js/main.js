@@ -45,9 +45,9 @@
     var idMis = "mis-" + (prefisso || "cat") + "-" + p.id;
     var h = [];
     h.push('<article class="scheda' + (abito ? " scheda--abito" : "") +
-           '" data-categoria="' + p.categoria + '" data-nome="' + attr(p.nome) + '">');
+           '" data-categoria="' + attr(p.categoria) + '" data-nome="' + attr(p.nome) + '">');
     h.push('<div class="scheda__foto">');
-    h.push('<img src="' + p.img + '" alt="' + attr(p.alt || p.nome) +
+    h.push('<img src="' + attr(p.img) + '" alt="' + attr(p.alt || p.nome) +
            '" loading="lazy" decoding="async" width="' + (abito ? 780 : 860) +
            '" height="' + (abito ? 1040 : 860) + '">');
     h.push('<span class="scheda__etichetta">' + esc(nomeCategoria(p.categoria)) + "</span>");
@@ -59,8 +59,8 @@
     if (p.varianti && p.varianti.length > 1) {
       h.push('<div class="colori" role="group" aria-label="Colori disponibili">');
       p.varianti.forEach(function (v, i) {
-        h.push('<button type="button" class="colore" data-img="' + v.img +
-               '" style="background-image:url(' + v.img + ')" aria-pressed="' +
+        h.push('<button type="button" class="colore" data-img="' + attr(v.img) +
+               '" style="background-image:url(&quot;' + attr(v.img) + '&quot;)" aria-pressed="' +
                (i === 0 ? "true" : "false") + '"><span class="solo-lettori">' +
                esc(v.colore) + "</span></button>");
       });
@@ -148,7 +148,14 @@
   function applicaFiltro(cat, subito) {
     categoriaViva = cat;
     $$(".filtro__voce", filtro).forEach(function (b) {
-      b.setAttribute("aria-pressed", String(b.dataset.cat === cat));
+      var acceso = b.dataset.cat === cat;
+      b.setAttribute("aria-pressed", String(acceso));
+      // se il filtro acceso sta fuori dal nastro, lo si porta in mezzo:
+      // altrimenti «Vedi gli abiti nel catalogo» accende una voce invisibile
+      if (acceso && b.scrollIntoView) {
+        b.scrollIntoView({ inline: "center", block: "nearest",
+                           behavior: fermo ? "auto" : "smooth" });
+      }
     });
     var carte = $$(".scheda", griglia);
     var esito = daMostrare(cat, mostrate);
@@ -234,7 +241,12 @@
           }, 20 + i * 26);
         });
       }
-      if (nuove[0]) nuove[0].querySelector("a, button").focus({ preventScroll: true });
+      // il fuoco va sul pulsante della prima scheda nuova, non sul primo
+      // pallino colore che capita
+      if (nuove[0]) {
+        var bersaglio = nuove[0].querySelector(".scheda__azione a");
+        if (bersaglio) bersaglio.focus({ preventScroll: true });
+      }
     });
   }
 
@@ -243,7 +255,9 @@
   var grigliaAbiti = $("#griglia-abiti");
   function disegnaAbiti() {
     if (!grigliaAbiti) return;
-    var abiti = prodottiAttivi().filter(function (p) { return p.categoria === "abiti"; });
+    // Solo un assaggio: l'elenco completo sta nel catalogo, e cosi il link
+    // «Vedi gli abiti nel catalogo» ha davvero qualcosa in piu da mostrare.
+    var abiti = prodottiAttivi().filter(function (p) { return p.categoria === "abiti"; }).slice(0, 4);
     grigliaAbiti.innerHTML = abiti.map(function (p) { return schedaHTML(p, "abiti"); }).join("");
     grigliaAbiti.hidden = abiti.length === 0;
   }
@@ -326,18 +340,187 @@
     sel.innerHTML = opz.join("");
   }
 
-  /* ── vetrina «le scarpe» ─────────────────────────────────────────────── */
+  /* ── «le scarpe»: il nastro che scorre e non si ferma mai ────────────── */
   function riempiVetrina() {
     var v = $("#vetrina");
     if (!v) return;
     var scelti = prodottiAttivi().filter(function (p) {
       return p.categoria !== "abiti" && /^(NPM|AA|AB|AC|BE|BF|BV|CC|CE|BB|BC)/.test(p.id);
-    }).slice(0, 8);
-    v.innerHTML = scelti.map(function (p) {
-      return '<li class="vetrina__voce"><img src="' + p.img + '" alt="' + attr(p.alt) +
+    }).slice(0, 10);
+    if (!scelti.length) { v.innerHTML = ""; return; }
+    function voce(p, doppia) {
+      return '<li class="nastro__voce"' + (doppia ? ' aria-hidden="true"' : "") +
+             '><img src="' + attr(p.img) + '" alt="' + (doppia ? "" : attr(p.alt)) +
              '" loading="lazy" decoding="async" width="860" height="860"><span>' +
              esc(p.nome) + "</span></li>";
-    }).join("");
+    }
+    // la seconda copia serve al giro continuo: l'animazione scorre di metà pista
+    v.innerHTML = scelti.map(function (p) { return voce(p, false); }).join("") +
+                  scelti.map(function (p) { return voce(p, true); }).join("");
+  }
+
+  /* ── la cascata delle schede ─────────────────────────────────────────── */
+  /* Nota: senza la classe «entra» la scheda è già visibile. L'animazione è
+     un di più: se l'osservatore non parte, il catalogo si vede lo stesso. */
+  function cascata(contenitore) {
+    if (!contenitore || fermo || !("IntersectionObserver" in window)) return;
+    var carte = $$(".scheda", contenitore).filter(function (c) { return !c.hidden; });
+    var os = new IntersectionObserver(function (voci) {
+      voci.forEach(function (v) {
+        if (!v.isIntersecting) return;
+        var c = v.target;
+        c.classList.add("entra");
+        // finita l'animazione la classe se ne va: se restasse, il FLIP del
+        // filtro e il sollevamento al passaggio del mouse non funzionerebbero
+        c.addEventListener("animationend", function fine() {
+          c.classList.remove("entra");
+          c.removeEventListener("animationend", fine);
+        });
+        os.unobserve(c);
+      });
+    }, { rootMargin: "0px 0px -5% 0px", threshold: 0.04 });
+    carte.forEach(function (c, i) {
+      c.style.setProperty("--i", i % 8);
+      os.observe(c);
+    });
+  }
+
+  /* ── l'apertura si muove col puntatore ───────────────────────────────── */
+  function agganciaParallasse() {
+    var eroe = $(".eroe");
+    var insegna = $("#insegna img");
+    if (!eroe || fermo || !insegna) return;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    var inCoda = false, mx = 0, my = 0;
+    function disegna() {
+      insegna.style.transform = "translate3d(" + (mx * 10) + "px," + (my * 8) + "px,0)";
+      inCoda = false;
+    }
+    eroe.addEventListener("pointermove", function (e) {
+      var r = eroe.getBoundingClientRect();
+      mx = (e.clientX - r.left) / r.width - 0.5;
+      my = (e.clientY - r.top) / r.height - 0.5;
+      if (!inCoda) { inCoda = true; requestAnimationFrame(disegna); }
+    }, { passive: true });
+    eroe.addEventListener("pointerleave", function () {
+      mx = my = 0;
+      requestAnimationFrame(disegna);
+    }, { passive: true });
+  }
+
+  /* ── i cinquanta centimetri che salgono ──────────────────────────────── */
+  function agganciaCifra() {
+    var n = $("#cifra-cinquanta");
+    if (!n) return;
+    var arrivo = parseInt(n.textContent, 10) || 50;
+    if (fermo || !("IntersectionObserver" in window)) { n.textContent = arrivo; return; }
+    var os = new IntersectionObserver(function (voci) {
+      voci.forEach(function (v) {
+        if (!v.isIntersecting) return;
+        os.disconnect();
+        var inizio = null;
+        (function passo(t) {
+          if (inizio === null) inizio = t;
+          var q = Math.min(1, (t - inizio) / 1100);
+          n.textContent = Math.round(arrivo * (1 - Math.pow(1 - q, 3)));
+          if (q < 1) requestAnimationFrame(passo);
+        })(performance.now());
+      });
+    }, { threshold: 0.5 });
+    os.observe(n);
+  }
+
+  /* ── le pedane della vetrina ──────────────────────────────────────────────
+     Quattro modelli fermi al loro posto. A turno, uno per volta, la pedana
+     gira su sé stessa: a metà giro si vede la faccia di dietro, dove nel
+     frattempo abbiamo messo il modello successivo. Finito il giro la faccia
+     nuova diventa quella davanti e la pedana torna dritta, senza che si veda.
+     Si ferma quando l'apertura non è in vista o la scheda è in secondo piano. */
+  function avviaVetrina() {
+    var scaffale = $(".eroe__scaffale");
+    if (!scaffale || fermo) return;
+    var posti = $$("li", scaffale);
+    if (!posti.length) return;
+
+    var magazzino = prodottiAttivi().filter(function (p) {
+      return p.categoria !== "abiti" && p.img;
+    });
+    if (magazzino.length <= posti.length) return;
+
+    var GIRO = 1000;        // deve combaciare con la transizione in CSS
+    var PAUSA = 2400;       // quanto sta ferma una pedana prima della prossima
+    var posto = 0, pesca = 0, battito = null, inVista = true, giroInCorso = false;
+
+    function inVetrina() {
+      return posti.map(function (li) {
+        var im = li.querySelector(".scaffale__faccia--davanti img");
+        return im ? im.getAttribute("src") : "";
+      });
+    }
+    function prossimoModello() {
+      var esposti = inVetrina();
+      for (var t = 0; t < magazzino.length; t++) {
+        var p = magazzino[(pesca + t) % magazzino.length];
+        if (esposti.indexOf(p.img) === -1) {
+          pesca = (pesca + t + 1) % magazzino.length;
+          return p;
+        }
+      }
+      return null;
+    }
+
+    function gira() {
+      if (giroInCorso) return;
+      var li = posti[posto % posti.length];
+      posto++;
+      var p = prossimoModello();
+      if (!li || !p) return;
+
+      var telaio = li.querySelector(".scaffale__telaio");
+      var davanti = li.querySelector(".scaffale__faccia--davanti img");
+      var dietro = li.querySelector(".scaffale__faccia--dietro img");
+      if (!telaio || !davanti || !dietro) return;
+
+      // si gira solo quando la foto nuova è pronta: mai una pedana vuota
+      var pronta = new Image();
+      pronta.onload = function () {
+        giroInCorso = true;
+        dietro.src = p.img;
+        dietro.alt = "";
+        li.classList.add("gira");
+        setTimeout(function () {
+          // a giro finito la faccia nuova passa davanti e il telaio torna
+          // dritto senza transizione: l'occhio non se ne accorge
+          davanti.src = p.img;
+          davanti.alt = p.alt || p.nome;
+          telaio.style.transition = "none";
+          li.classList.remove("gira");
+          void telaio.offsetWidth;
+          telaio.style.transition = "";
+          giroInCorso = false;
+        }, GIRO + 40);
+      };
+      pronta.onerror = function () { posto--; };
+      pronta.src = p.img;
+    }
+
+    function accendi() { if (!battito && inVista) battito = setInterval(gira, GIRO + PAUSA); }
+    function spegni() { if (battito) { clearInterval(battito); battito = null; } }
+
+    // Si parte subito. L'osservatore serve solo a METTERE IN PAUSA quando
+    // l'apertura esce di vista: se lo aspettassimo per partire, in una scheda
+    // in secondo piano o in un'anteprima le pedane non girerebbero mai.
+    accendi();
+
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) spegni(); else accendi();
+    });
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (voci) {
+        inVista = voci[0].isIntersecting;
+        if (inVista && !document.hidden) accendi(); else spegni();
+      }, { threshold: 0.12 }).observe(scaffale);
+    }
   }
 
   /* ── testi che vivono nel pannello ───────────────────────────────────── */
@@ -446,6 +629,12 @@
 
   /* ── comparsa allo scorrimento ───────────────────────────────────────── */
   function attivaRivela() {
+    // ogni «scaglione» numera i suoi figli: il ritardo lo calcola il CSS
+    $$(".scaglione").forEach(function (g) {
+      Array.prototype.forEach.call(g.children, function (n, i) {
+        n.style.setProperty("--r", i);
+      });
+    });
     var da = $$(".rivela");
     if (fermo || !("IntersectionObserver" in window)) {
       da.forEach(function (n) { n.classList.add("dentro"); });
@@ -514,7 +703,10 @@
   });
 
   /* ── banner cookie ───────────────────────────────────────────────────── */
-  var cookie = $("#cookie");
+  // Si cerca la striscia per classe, non per id: su privacy.html esiste un
+  // blocco di testo con id="cookie" (l'ancora dell'informativa) e agganciarlo
+  // qui cancellava il capitolo o mandava in errore tutto l'avvio della pagina.
+  var cookie = $(".cookie-bar");
   function altezzaCookie() {
     document.documentElement.style.setProperty(
       "--barra-cookie", cookie && cookie.isConnected ? cookie.offsetHeight + "px" : "0px");
@@ -527,7 +719,8 @@
       cookie.hidden = false;
       altezzaCookie();
       window.addEventListener("resize", altezzaCookie, { passive: true });
-      $(".cookie-bar__x", cookie).addEventListener("click", function () {
+      var chiudiCookie = $(".cookie-bar__x", cookie);
+      if (chiudiCookie) chiudiCookie.addEventListener("click", function () {
         cookie.remove();
         altezzaCookie();
         try { localStorage.setItem("mmt-cookie", "1"); } catch (e) {}
@@ -544,6 +737,9 @@
     });
   }
 
+  /* ── l'anno nel piede si scrive da solo ──────────────────────────────── */
+  $$("#anno").forEach(function (n) { n.textContent = new Date().getFullYear(); });
+
   /* ── contenuti dal vivo, se il pannello è collegato ──────────────────── */
   function aggiornaDalPannello() {
     if (!window.fetch) return;
@@ -556,6 +752,8 @@
         disegnaCatalogo();
         disegnaAbiti();
         riempiVetrina();
+        cascata(griglia);
+        cascata(grigliaAbiti);
         riempiModelli();
         misuraSezioni();
         suScroll();
@@ -568,6 +766,11 @@
   disegnaCatalogo();
   disegnaAbiti();
   riempiVetrina();
+  cascata(griglia);
+  cascata(grigliaAbiti);
+  agganciaParallasse();
+  agganciaCifra();
+  avviaVetrina();
   riempiModelli();
   costruisciRighello();
   attivaRivela();
